@@ -1,4 +1,6 @@
 LibCSV.suo
 LibCSV\bin
 LibCSV\obj
-
+TestLibCSV\bin
+TestLibCSV\obj
+TestResults
