@@ -27,7 +27,7 @@ namespace Youworks.Text
         object ReadNextObject();
     }
 
-    public class CSVSource<T> : ICSVSource, IDisposable where T : new()
+    public sealed class CSVSource<T> : ICSVSource, IDisposable where T : new()
     {
         private string filename;
 
@@ -232,7 +232,7 @@ namespace Youworks.Text
 
         #region IDisposable メンバ
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             if (this.sr != null)
                 sr.Close();
