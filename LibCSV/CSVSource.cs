@@ -119,9 +119,7 @@ namespace Youworks.Text
 
         private void PrepareFieldInfo()
         {
-            T csvLine = new T();
-            Type csvLineType = csvLine.GetType();
-            var typeFields = csvLineType.GetFields();
+            var typeFields = typeof(T).GetFields();
 
             fields = new FieldInfo[header.Length];
             foreach (System.Reflection.FieldInfo field in typeFields)

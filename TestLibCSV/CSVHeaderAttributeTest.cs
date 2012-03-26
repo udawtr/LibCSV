@@ -48,7 +48,7 @@ namespace TestLibCSV
         public void CSVHeaderAttributeIndexTest()
         {
             var stream = new System.IO.MemoryStream();
-            var text = "Foo,Bar\r\nA,B\r\nD,E";
+            var text = "Foo,Bar,Buzz\r\nA,B,C\r\nD,E,F";
             var bytes = System.Text.Encoding.UTF8.GetBytes(text);
             stream.Write(bytes, 0, bytes.Length);
             stream.Position = 0;
@@ -56,7 +56,7 @@ namespace TestLibCSV
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("A", firstLine.Col1);
-            Assert.AreEqual("B", firstLine.Col2);
+            Assert.AreEqual("C", firstLine.Col3);
         }
 
         private class TestClass
@@ -71,8 +71,8 @@ namespace TestLibCSV
             [CSVHeader(Index = 0)]
             public string Col1;
 
-            [CSVHeader(Index = 1)]
-            public string Col2;
+            [CSVHeader(Index = 2)]
+            public string Col3;
         }
     }
 }
