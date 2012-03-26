@@ -93,6 +93,21 @@ namespace TestLibCSV
             Assert.IsNotNull(target.ReadNext());
             Assert.IsNull(target.ReadNext());
         }
+
+
+        [TestMethod()]
+        [DeploymentItem("TestCSV_Escape.csv")]
+        public void GetCSVLineTestOfSimpleEscape()
+        {
+            string filename = "TestCSV_Escape.csv";
+            var target = new CSVSource<Sample>(filename);
+            var line = target.ReadNext();
+            Assert.AreEqual("日本,語", line.Col3);
+            line = target.ReadNext();
+            Assert.AreEqual("ちり\"ぬるを", line.Col3);
+            line = target.ReadNext();
+            Assert.AreEqual("吾輩は\n猫である。", line.Col3);
+        }
     }
 
     public class Sample

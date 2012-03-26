@@ -122,7 +122,7 @@ namespace Youworks.Text
             bool escape = false;
             for (int off = 0; off < sb.Length || inDoubleQuote; off++)
             {
-                if (!(off < sb.Length))
+                if (!(off < sb.Length) && inDoubleQuote)
                 {
                     sb.Append('\n');
                     sb.Append(sr.ReadLine());
