@@ -15,10 +15,35 @@ namespace Youworks.Text
         /// </summary>
         public string Name { get; set; }
 
+        public int Index { get; set; }
+
+        public CSVHeaderAttribute()
+            : base()
+        {
+            this.Index = -1;
+        }
+
         public CSVHeaderAttribute(string name)
             : base()
         {
             this.Name = name;
+            this.Index = -1;
+        }
+
+        public bool HasName
+        {
+            get
+            {
+                return Name != null;
+            }
+        }
+
+        public bool HasIndex
+        {
+            get
+            {
+                return Index >= 0;
+            }
         }
     }
 
@@ -111,7 +136,11 @@ namespace Youworks.Text
                             fields[i] = field;
                         }
                     }
-                    else if (attrs[0].Name == header[i])
+                    else if (attrs[0].HasName && attrs[0].Name == header[i])
+                    {
+                        fields[i] = field;
+                    }
+                    else if (attrs[0].HasIndex && attrs[0].Index == i)
                     {
                         fields[i] = field;
                     }
