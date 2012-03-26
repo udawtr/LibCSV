@@ -73,7 +73,6 @@ namespace Youworks.Text
         public string[] Header
         {
             get { return header; }
-            private set { header = value; }
         }
 
         public CSVSource(string filename)

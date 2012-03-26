@@ -124,6 +124,29 @@ namespace TestLibCSV
             Assert.AreEqual("B", obj.Col2);
             Assert.AreEqual("C", obj.Col3);
         }
+
+        [TestMethod()]
+        [DeploymentItem("TestCSV_Escape.csv")]
+        public void BasicProperyTest()
+        {
+            string filename = "TestCSV_Escape.csv";
+            using (var target = new CSVSource<Sample>(filename))
+            {
+                //Filename get/set
+                Assert.AreEqual(filename, target.Filename);
+                target.Filename = "update.csv";
+                Assert.AreEqual("update.csv", target.Filename);
+
+                //Header
+                Assert.AreEqual("Col1", target.Header[0]);
+                Assert.AreEqual("Col2", target.Header[1]);
+                Assert.AreEqual("Col3", target.Header[2]);
+
+                dynamic line = target.ReadNextObject();
+                Assert.AreEqual("日本,語", line.Col3);
+                //Dispose
+            }
+        }
     }
 
     public class Sample
