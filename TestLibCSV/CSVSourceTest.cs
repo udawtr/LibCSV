@@ -93,6 +93,21 @@ namespace TestLibCSV
             Assert.IsNotNull(target.ReadNext());
             Assert.IsNull(target.ReadNext());
         }
+
+        [TestMethod()]
+        public void HeaderStartedWithSpacesTest()
+        {
+            var stream = new System.IO.MemoryStream();
+            var text = "Col1,  Col2,Col3\r\nA,B,C";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<Sample>(stream, System.Text.Encoding.UTF8);
+            var obj = target.ReadNext();
+            Assert.AreEqual("A", obj.Col1);
+            Assert.AreEqual("B", obj.Col2);
+            Assert.AreEqual("C", obj.Col3);
+        }
     }
 
     public class Sample
