@@ -94,7 +94,6 @@ namespace TestLibCSV
             Assert.IsNull(target.ReadNext());
         }
 
-
         [TestMethod()]
         [DeploymentItem("TestCSV_Escape.csv")]
         public void GetCSVLineTestOfSimpleEscape()
@@ -109,6 +108,21 @@ namespace TestLibCSV
             Assert.AreEqual("吾輩は\n\"\"猫\"\"である。", line.Col3);
             line = target.ReadNext();
             Assert.AreEqual("ちがうことも\\あります。", line.Col3);
+        }
+
+        [TestMethod()]
+        public void HeaderStartedWithSpacesTest()
+        {
+            var stream = new System.IO.MemoryStream();
+            var text = "Col1,  Col2,Col3\r\nA,B,C";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<Sample>(stream, System.Text.Encoding.UTF8);
+            var obj = target.ReadNext();
+            Assert.AreEqual("A", obj.Col1);
+            Assert.AreEqual("B", obj.Col2);
+            Assert.AreEqual("C", obj.Col3);
         }
     }
 

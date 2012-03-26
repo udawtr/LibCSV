@@ -63,7 +63,7 @@ namespace Youworks.Text
             this.filename = filename;
 
             //ヘッダを読み取る
-            header = GetCSVLine();
+            header = ReadHeader();
             PrepareFieldInfo();
         }
 
@@ -78,8 +78,18 @@ namespace Youworks.Text
             sr = new StreamReader(inputStream, encoding);
 
             //ヘッダを読み取る
-            header = GetCSVLine();
+            header = ReadHeader();
             PrepareFieldInfo();
+        }
+
+        private string[] ReadHeader()
+        {
+            var cols  = GetCSVLine();
+            for ( var i = 0; i < cols.Length; i++ ) 
+            {
+                cols[i] = cols[i].TrimStart(new char[] { ' '});
+            }
+            return cols;
         }
 
         private void PrepareFieldInfo()
