@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="CSVHeaderAttributeTest.cs" />
     <Compile Include="CSVSourceTest.cs" />
-    <Compile Include="ICSVSourceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -63,6 +62,14 @@
   </ItemGroup>
   <ItemGroup>
     <Shadow Include="Accessors\LibCSV.accessor" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="TestCSV_932_CRLF.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="TestCSV_UTF8_CRLF.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
