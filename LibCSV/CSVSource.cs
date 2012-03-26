@@ -150,8 +150,17 @@ namespace Youworks.Text
                     {
                         if (c == '\"')
                         {
-                            //二重引用符の終了
-                            inDoubleQuote = false;
+                            //""(2連続するダブルクオート)の場合は例外
+                            if (off + 1 < sb.Length && sb[off + 1] == '\"')
+                            {
+                                tmp.Append("\"\"");
+                                off++;
+                            }
+                            else
+                            {
+                                //二重引用符の終了
+                                inDoubleQuote = false;
+                            }
                         }
                         else if (c == '\\')
                         {

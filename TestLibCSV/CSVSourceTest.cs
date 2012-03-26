@@ -106,7 +106,7 @@ namespace TestLibCSV
             line = target.ReadNext();
             Assert.AreEqual("ちり\"ぬるを", line.Col3);
             line = target.ReadNext();
-            Assert.AreEqual("吾輩は\n猫である。", line.Col3);
+            Assert.AreEqual("吾輩は\n\"\"猫\"\"である。", line.Col3);
             line = target.ReadNext();
             Assert.AreEqual("ちがうことも\\あります。", line.Col3);
         }
