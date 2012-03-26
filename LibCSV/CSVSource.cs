@@ -159,7 +159,7 @@ namespace Youworks.Text
             bool escape = false;
             for (int off = 0; off < sb.Length || inDoubleQuote; off++)
             {
-                if (!(off < sb.Length))
+                if (!(off < sb.Length) && inDoubleQuote)
                 {
                     sb.Append('\n');
                     sb.Append(sr.ReadLine());
@@ -177,7 +177,7 @@ namespace Youworks.Text
                         else
                         {
                             //エスケープ不成立
-                            tmp.Append('\"');
+                            tmp.Append('\\');
                             tmp.Append(c);
                         }
                         //エスケープ処理の終了
@@ -187,8 +187,17 @@ namespace Youworks.Text
                     {
                         if (c == '\"')
                         {
-                            //二重引用符の終了
-                            inDoubleQuote = false;
+                            //""(2連続するダブルクオート)の場合は例外
+                            if (off + 1 < sb.Length && sb[off + 1] == '\"')
+                            {
+                                tmp.Append("\"\"");
+                                off++;
+                            }
+                            else
+                            {
+                                //二重引用符の終了
+                                inDoubleQuote = false;
+                            }
                         }
                         else if (c == '\\')
                         {

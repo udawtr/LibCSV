@@ -95,6 +95,22 @@ namespace TestLibCSV
         }
 
         [TestMethod()]
+        [DeploymentItem("TestCSV_Escape.csv")]
+        public void GetCSVLineTestOfSimpleEscape()
+        {
+            string filename = "TestCSV_Escape.csv";
+            var target = new CSVSource<Sample>(filename);
+            var line = target.ReadNext();
+            Assert.AreEqual("日本,語", line.Col3);
+            line = target.ReadNext();
+            Assert.AreEqual("ちり\"ぬるを", line.Col3);
+            line = target.ReadNext();
+            Assert.AreEqual("吾輩は\n\"\"猫\"\"である。", line.Col3);
+            line = target.ReadNext();
+            Assert.AreEqual("ちがうことも\\あります。", line.Col3);
+        }
+
+        [TestMethod()]
         public void HeaderStartedWithSpacesTest()
         {
             var stream = new System.IO.MemoryStream();
