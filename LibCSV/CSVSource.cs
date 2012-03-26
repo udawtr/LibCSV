@@ -140,7 +140,7 @@ namespace Youworks.Text
                         else
                         {
                             //エスケープ不成立
-                            tmp.Append('\"');
+                            tmp.Append('\\');
                             tmp.Append(c);
                         }
                         //エスケープ処理の終了
