@@ -64,186 +64,41 @@ namespace TestLibCSV
         //
         #endregion
 
-
-        /// <summary>
-        ///CSVSource`1 コンストラクター のテスト
-        ///</summary>
-        public void CSVSourceConstructorTestHelper<T>()
-            where T : new()
-        {
-            Stream inputStream = null; // TODO: 適切な値に初期化してください
-            CSVSource<T> target = new CSVSource<T>(inputStream);
-            Assert.Inconclusive("TODO: ターゲットを確認するためのコードを実装してください");
-        }
-
         [TestMethod()]
         public void CSVSourceConstructorTest()
         {
-            CSVSourceConstructorTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///CSVSource`1 コンストラクター のテスト
-        ///</summary>
-        public void CSVSourceConstructorTest1Helper<T>()
-            where T : new()
-        {
-            string filename = string.Empty; // TODO: 適切な値に初期化してください
-            CSVSource<T> target = new CSVSource<T>(filename);
-            Assert.Inconclusive("TODO: ターゲットを確認するためのコードを実装してください");
+            Stream inputStream = new System.IO.MemoryStream();
+            var target = new CSVSource<Sample>(inputStream);
+            Assert.IsNotNull(target);
         }
 
         [TestMethod()]
-        public void CSVSourceConstructorTest1()
+        [DeploymentItem("TestCSV_932_CRLF.csv")]
+        public void CSVSourceConstructorTestWith932EncodedText()
         {
-            CSVSourceConstructorTest1Helper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///GetCSVLine のテスト
-        ///</summary>
-        public void GetCSVLineTestHelper<T>()
-            where T : new()
-        {
-            PrivateObject param0 = null; // TODO: 適切な値に初期化してください
-            CSVSource_Accessor<T> target = new CSVSource_Accessor<T>(param0); // TODO: 適切な値に初期化してください
-            string[] expected = null; // TODO: 適切な値に初期化してください
-            string[] actual;
-            actual = target.GetCSVLine();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("このテストメソッドの正確性を確認します。");
+            string filename = "TestCSV_932_CRLF.csv";
+            var target = new CSVSource<Sample>(filename);
+            Assert.IsNotNull(target.ReadNext());
+            Assert.IsNotNull(target.ReadNext());
+            Assert.IsNull(target.ReadNext());
         }
 
         [TestMethod()]
-        [DeploymentItem("LibCSV.dll")]
-        public void GetCSVLineTest()
+        [DeploymentItem("TestCSV_UTF8_CRLF.csv")]
+        public void CSVSourceConstructorTestWithUTF8EncodedText()
         {
-            GetCSVLineTestHelper<GenericParameterHelper>();
+            string filename = "TestCSV_UTF8_CRLF.csv";
+            var target = new CSVSource<Sample>(filename, System.Text.Encoding.UTF8);
+            Assert.IsNotNull(target.ReadNext());
+            Assert.IsNotNull(target.ReadNext());
+            Assert.IsNull(target.ReadNext());
         }
+    }
 
-        /// <summary>
-        ///PrepareFieldInfo のテスト
-        ///</summary>
-        public void PrepareFieldInfoTestHelper<T>()
-            where T : new()
-        {
-            PrivateObject param0 = null; // TODO: 適切な値に初期化してください
-            CSVSource_Accessor<T> target = new CSVSource_Accessor<T>(param0); // TODO: 適切な値に初期化してください
-            target.PrepareFieldInfo();
-            Assert.Inconclusive("値を返さないメソッドは確認できません。");
-        }
-
-        [TestMethod()]
-        [DeploymentItem("LibCSV.dll")]
-        public void PrepareFieldInfoTest()
-        {
-            PrepareFieldInfoTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///ReadNext のテスト
-        ///</summary>
-        public void ReadNextTestHelper<T>()
-            where T : new()
-        {
-            Stream inputStream = null; // TODO: 適切な値に初期化してください
-            CSVSource<T> target = new CSVSource<T>(inputStream); // TODO: 適切な値に初期化してください
-            T expected = new T(); // TODO: 適切な値に初期化してください
-            T actual;
-            actual = target.ReadNext();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("このテストメソッドの正確性を確認します。");
-        }
-
-        [TestMethod()]
-        public void ReadNextTest()
-        {
-            ReadNextTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///ReadNextObject のテスト
-        ///</summary>
-        public void ReadNextObjectTestHelper<T>()
-            where T : new()
-        {
-            Stream inputStream = null; // TODO: 適切な値に初期化してください
-            CSVSource<T> target = new CSVSource<T>(inputStream); // TODO: 適切な値に初期化してください
-            object expected = null; // TODO: 適切な値に初期化してください
-            object actual;
-            actual = target.ReadNextObject();
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("このテストメソッドの正確性を確認します。");
-        }
-
-        [TestMethod()]
-        public void ReadNextObjectTest()
-        {
-            ReadNextObjectTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///System.IDisposable.Dispose のテスト
-        ///</summary>
-        public void DisposeTestHelper<T>()
-            where T : new()
-        {
-            Stream inputStream = null; // TODO: 適切な値に初期化してください
-            IDisposable target = new CSVSource<T>(inputStream); // TODO: 適切な値に初期化してください
-            target.Dispose();
-            Assert.Inconclusive("値を返さないメソッドは確認できません。");
-        }
-
-        [TestMethod()]
-        [DeploymentItem("LibCSV.dll")]
-        public void DisposeTest()
-        {
-            DisposeTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///Filename のテスト
-        ///</summary>
-        public void FilenameTestHelper<T>()
-            where T : new()
-        {
-            Stream inputStream = null; // TODO: 適切な値に初期化してください
-            CSVSource<T> target = new CSVSource<T>(inputStream); // TODO: 適切な値に初期化してください
-            string expected = string.Empty; // TODO: 適切な値に初期化してください
-            string actual;
-            target.Filename = expected;
-            actual = target.Filename;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("このテストメソッドの正確性を確認します。");
-        }
-
-        [TestMethod()]
-        public void FilenameTest()
-        {
-            FilenameTestHelper<GenericParameterHelper>();
-        }
-
-        /// <summary>
-        ///Header のテスト
-        ///</summary>
-        public void HeaderTestHelper<T>()
-            where T : new()
-        {
-            PrivateObject param0 = null; // TODO: 適切な値に初期化してください
-            CSVSource_Accessor<T> target = new CSVSource_Accessor<T>(param0); // TODO: 適切な値に初期化してください
-            string[] expected = null; // TODO: 適切な値に初期化してください
-            string[] actual;
-            target.Header = expected;
-            actual = target.Header;
-            Assert.AreEqual(expected, actual);
-            Assert.Inconclusive("このテストメソッドの正確性を確認します。");
-        }
-
-        [TestMethod()]
-        [DeploymentItem("LibCSV.dll")]
-        public void HeaderTest()
-        {
-            HeaderTestHelper<GenericParameterHelper>();
-        }
+    public class Sample
+    {
+        public String Col1;
+        public String Col2;
+        public String Col3;
     }
 }

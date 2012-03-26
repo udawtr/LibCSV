@@ -52,9 +52,14 @@ namespace Youworks.Text
         }
 
         public CSVSource(string filename)
+            : this(filename, Encoding.GetEncoding(932))
+        {
+        }
+
+        public CSVSource(string filename, Encoding encoding)
         {
             //ファイルを開く
-            sr = new StreamReader(filename, Encoding.GetEncoding(932));
+            sr = new StreamReader(filename, encoding);
             this.filename = filename;
 
             //ヘッダを読み取る
@@ -63,9 +68,14 @@ namespace Youworks.Text
         }
 
         public CSVSource(Stream inputStream)
+            : this(inputStream, Encoding.GetEncoding(932))
+        {
+        }
+
+        public CSVSource(Stream inputStream, Encoding encoding)
         {
             //ファイルを開く
-            sr = new StreamReader(inputStream, Encoding.GetEncoding(932));
+            sr = new StreamReader(inputStream, encoding);
 
             //ヘッダを読み取る
             header = GetCSVLine();
