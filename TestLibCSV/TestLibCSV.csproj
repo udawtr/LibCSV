@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="CSVFileAttributeTest.cs" />
     <Compile Include="CSVHeaderAttributeTest.cs" />
+    <Compile Include="CSVIgnoreAttributeTest.cs" />
     <Compile Include="CSVSourceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

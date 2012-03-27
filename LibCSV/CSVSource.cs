@@ -7,6 +7,12 @@ using System.ComponentModel;
 
 namespace Youworks.Text
 {
+
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    public class CSVIgnoreAttribute : Attribute
+    {
+    }
+
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class CSVHeaderAttribute : Attribute
     {
@@ -256,6 +262,9 @@ namespace Youworks.Text
             var typeFields = typeof(T).GetFields();
             foreach (System.Reflection.FieldInfo field in typeFields)
             {
+                var ignores = (CSVIgnoreAttribute[])field.GetCustomAttributes(typeof(CSVIgnoreAttribute), true);
+                if (ignores != null && ignores.Length != 0) continue;
+
                 var attrs = (CSVHeaderAttribute[])field.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
                 for (int i = 0; i < header.Length; i++)
                 {
@@ -280,6 +289,9 @@ namespace Youworks.Text
             var typeProperties = typeof(T).GetProperties();
             foreach (System.Reflection.PropertyInfo property in typeProperties)
             {
+                var ignores = (CSVIgnoreAttribute[])property.GetCustomAttributes(typeof(CSVIgnoreAttribute), true);
+                if (ignores != null && ignores.Length != 0) continue;
+
                 var attrs = (CSVHeaderAttribute[])property.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
                 for (int i = 0; i < header.Length; i++)
                 {
