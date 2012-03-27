@@ -118,6 +118,14 @@ namespace Youworks.Text
             set { filename = value; }
         }
 
+        public bool HasMore
+        {
+            get
+            {
+                return !sr.EndOfStream;
+            }
+        }
+
         private StreamReader sr;
 
         private string[] header;

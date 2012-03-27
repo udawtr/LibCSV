@@ -145,8 +145,14 @@ namespace TestLibCSV
                 Assert.AreEqual("Col2", target.Header[1]);
                 Assert.AreEqual("Col3", target.Header[2]);
 
+                Assert.IsTrue(target.HasMore);
                 dynamic line = target.ReadNextObject();
                 Assert.AreEqual("日本,語", line.Col3);
+                target.ReadNextObject();
+                target.ReadNextObject();
+                target.ReadNextObject();
+                target.ReadNextObject();
+                Assert.IsFalse(target.HasMore);
                 //Dispose
             }
         }
