@@ -122,7 +122,7 @@ namespace Youworks.Text
         {
             get
             {
-                return !sr.EndOfStream;
+                return sr!=null && !sr.EndOfStream;
             }
         }
 
