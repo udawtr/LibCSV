@@ -150,12 +150,12 @@ namespace TestLibCSV
                 //Dispose
             }
         }
-    }
 
-    public class Sample
-    {
-        public String Col1;
-        public String Col2;
-        public String Col3;
+        private class Sample
+        {
+            public String Col1;
+            public String Col2;
+            public String Col3 { get; set; }
+        }
     }
 }

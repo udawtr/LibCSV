@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace Youworks.Text
 {
-    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
     public class CSVHeaderAttribute : Attribute
     {
         /// <summary>
@@ -67,6 +67,33 @@ namespace Youworks.Text
         }
     }
 
+    internal class CSVColumn
+    {
+        private FieldInfo Field;
+        private PropertyInfo Property;
+        internal CSVColumn(FieldInfo field)
+        {
+            this.Field = field;
+        }
+
+        internal CSVColumn(PropertyInfo property)
+        {
+            this.Property = property;
+        }
+
+        internal void SetValue(object obj, object value)
+        {
+            if (Field != null)
+            {
+                Field.SetValue(obj, value);
+            }
+            else
+            {
+                Property.SetValue(obj, value, null);
+            }
+        }
+    }
+
     public interface ICSVSource
     {
         object ReadNextObject();
@@ -88,7 +115,7 @@ namespace Youworks.Text
         private StreamReader sr;
 
         private string[] header;
-        private System.Reflection.FieldInfo[] fields;
+        private CSVColumn[] columns;
 
         public string[] Header
         {
@@ -175,16 +202,16 @@ namespace Youworks.Text
 
         private void PrepareFieldInfoWithoutHeader()
         {
-            var typeFields = typeof(T).GetFields();
-
-            var dict = new Dictionary<int, FieldInfo>();
+            var dict = new Dictionary<int, CSVColumn>();
             var maxIndex = -1;
+
+            var typeFields = typeof(T).GetFields();
             foreach (System.Reflection.FieldInfo field in typeFields)
             {
                 var attrs = (CSVHeaderAttribute[])field.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
                 if ( attrs.Length > 0 && attrs[0].HasIndex )
                 {
-                    dict[attrs[0].Index] = field;
+                    dict[attrs[0].Index] = new CSVColumn(field);
                     if (maxIndex < attrs[0].Index)
                     {
                         maxIndex = attrs[0].Index;
@@ -192,28 +219,41 @@ namespace Youworks.Text
                 }
             }
 
+            var typeProperties = typeof(T).GetProperties();
+            foreach (System.Reflection.PropertyInfo property in typeProperties)
+            {
+                var attrs = (CSVHeaderAttribute[])property.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
+                if ( attrs.Length > 0 && attrs[0].HasIndex )
+                {
+                    dict[attrs[0].Index] = new CSVColumn(property);
+                    if (maxIndex < attrs[0].Index)
+                    {
+                        maxIndex = attrs[0].Index;
+                    }
+                }
+            }
             if (maxIndex >= 0)
             {
-                fields = new FieldInfo[maxIndex + 1];
+                columns = new CSVColumn[maxIndex + 1];
                 for (var i = 0; i <= maxIndex; i++)
                 {
                     if ( dict.ContainsKey(i) )
                     {
-                        fields[i] = dict[i];
+                        columns[i] = dict[i];
                     }
                 }
             }
             else
             {
-                fields = new FieldInfo[0];
+                columns = new CSVColumn[0];
             }
         }
 
         private void PrepareFieldInfoWithHeader()
         {
-            var typeFields = typeof(T).GetFields();
+            columns = new CSVColumn[header.Length];
 
-            fields = new FieldInfo[header.Length];
+            var typeFields = typeof(T).GetFields();
             foreach (System.Reflection.FieldInfo field in typeFields)
             {
                 var attrs = (CSVHeaderAttribute[])field.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
@@ -223,16 +263,40 @@ namespace Youworks.Text
                     {
                         if (field.Name == header[i])
                         {
-                            fields[i] = field;
+                            columns[i] = new CSVColumn(field);
                         }
                     }
                     else if (attrs[0].HasName && attrs[0].Name == header[i])
                     {
-                        fields[i] = field;
+                        columns[i] = new CSVColumn(field);
                     }
                     else if (attrs[0].HasIndex && attrs[0].Index == i)
                     {
-                        fields[i] = field;
+                        columns[i] = new CSVColumn(field);
+                    }
+                }
+            }
+
+            var typeProperties = typeof(T).GetProperties();
+            foreach (System.Reflection.PropertyInfo property in typeProperties)
+            {
+                var attrs = (CSVHeaderAttribute[])property.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
+                for (int i = 0; i < header.Length; i++)
+                {
+                    if (attrs.Length == 0)
+                    {
+                        if (property.Name == header[i])
+                        {
+                            columns[i] = new CSVColumn(property);
+                        }
+                    }
+                    else if (attrs[0].HasName && attrs[0].Name == header[i])
+                    {
+                        columns[i] = new CSVColumn(property);
+                    }
+                    else if (attrs[0].HasIndex && attrs[0].Index == i)
+                    {
+                        columns[i] = new CSVColumn(property);
                     }
                 }
             }
@@ -372,13 +436,12 @@ namespace Youworks.Text
                 string[] data = GetCSVLine();
                 T csvLine = new T();
 
-                int l = Math.Min(fields.Length, data.Length);
+                int l = Math.Min(columns.Length, data.Length);
                 for (int i = 0; i < l; i++)
                 {
-                    System.Reflection.FieldInfo field = fields[i];
-                    if (field != null)
+                    if (columns[i] != null)
                     {
-                        field.SetValue(csvLine, data[i]);
+                        columns[i].SetValue(csvLine, data[i]);
                     }
                 }
 

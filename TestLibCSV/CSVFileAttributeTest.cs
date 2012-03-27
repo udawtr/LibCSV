@@ -95,21 +95,21 @@ namespace TestLibCSV
             public String Col1;
 
             [CSVHeader(Index=1)]
-            public String Col2;
+            public String Col2 { get; set; }
         }
 
         [CSVFile(HasHeader = false)]
         private class TestClass2
         {
             public String Col1;
-            public String Col2;
+            public String Col2 { get; set; }
         }
 
         [CSVFile(SkipRowCount = 2)]
         private class TestClass3
         {
             public String Col1;
-            public String Col2;
+            public String Col2 { get; set; }
         }
     }
 }

@@ -63,7 +63,7 @@ namespace TestLibCSV
         {
             [CSVHeader("Col1")]
             public String Field1;
-            public String Col2;
+            public String Col2 { get; set; }
         }
 
         private class IndexTestClass
@@ -72,7 +72,7 @@ namespace TestLibCSV
             public string Col1;
 
             [CSVHeader(Index = 2)]
-            public string Col3;
+            public string Col3 { get; set; }
         }
     }
 }
