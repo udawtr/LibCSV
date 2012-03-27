@@ -144,6 +144,7 @@ namespace TestLibCSV
                 Assert.AreEqual("Col1", target.Header[0]);
                 Assert.AreEqual("Col2", target.Header[1]);
                 Assert.AreEqual("Col3", target.Header[2]);
+                Assert.AreEqual("Col4", target.Header[3]);
 
                 Assert.IsTrue(target.HasMore);
                 dynamic line = target.ReadNextObject();
@@ -162,6 +163,8 @@ namespace TestLibCSV
             public String Col1;
             public String Col2;
             public String Col3 { get; set; }
+            [CSVHeader(Name="Col4")]
+            public String Extra { get; set; }
         }
     }
 }

@@ -147,18 +147,7 @@ namespace Youworks.Text
             sr = new StreamReader(filename, encoding);
             this.filename = filename;
 
-            SkipHeaders();
-
-            //ヘッダを読み取る
-            if (HasHeader)
-            {
-                header = ReadHeader();
-                PrepareFieldInfoWithHeader();
-            }
-            else
-            {
-                PrepareFieldInfoWithoutHeader();
-            }
+            Init();
         }
 
         public CSVSource(Stream inputStream)
@@ -171,6 +160,11 @@ namespace Youworks.Text
             //ファイルを開く
             sr = new StreamReader(inputStream, encoding);
 
+            Init();
+        }
+
+        private void Init()
+        {
             SkipHeaders();
 
             //ヘッダを読み取る
