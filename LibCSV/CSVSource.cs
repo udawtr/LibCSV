@@ -47,6 +47,26 @@ namespace Youworks.Text
         }
     }
 
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+    public class CSVAttribute : Attribute
+    {
+        /// <summary>
+        /// CSVヘッダの有無
+        /// </summary>
+        public bool HasHeader { get; set; }
+
+        /// <summary>
+        /// 読み飛ばす先頭行数
+        /// </summary>
+        public int SkipRowCount { get; set; }
+        public CSVAttribute()
+            : base()
+        {
+            this.HasHeader = true;
+            this.SkipRowCount = 0;
+        }
+    }
+
     public interface ICSVSource
     {
         object ReadNextObject();
@@ -86,9 +106,18 @@ namespace Youworks.Text
             sr = new StreamReader(filename, encoding);
             this.filename = filename;
 
+            SkipHeaders();
+
             //ヘッダを読み取る
-            header = ReadHeader();
-            PrepareFieldInfo();
+            if (HasHeader)
+            {
+                header = ReadHeader();
+                PrepareFieldInfoWithHeader();
+            }
+            else
+            {
+                PrepareFieldInfoWithoutHeader();
+            }
         }
 
         public CSVSource(Stream inputStream)
@@ -101,9 +130,37 @@ namespace Youworks.Text
             //ファイルを開く
             sr = new StreamReader(inputStream, encoding);
 
+            SkipHeaders();
+
             //ヘッダを読み取る
-            header = ReadHeader();
-            PrepareFieldInfo();
+            if (HasHeader)
+            {
+                header = ReadHeader();
+                PrepareFieldInfoWithHeader();
+            }
+            else
+            {
+                PrepareFieldInfoWithoutHeader();
+            }
+        }
+
+        /// <summary>
+        /// ヘッダの有無
+        /// </summary>
+        public bool HasHeader
+        {
+            get
+            {
+                var attrs = typeof(T).GetCustomAttributes(typeof(CSVAttribute), true) as CSVAttribute[];
+                if (attrs == null || attrs.Length == 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return attrs[0].HasHeader;
+                }
+            }
         }
 
         private string[] ReadHeader()
@@ -116,7 +173,43 @@ namespace Youworks.Text
             return cols;
         }
 
-        private void PrepareFieldInfo()
+        private void PrepareFieldInfoWithoutHeader()
+        {
+            var typeFields = typeof(T).GetFields();
+
+            var dict = new Dictionary<int, FieldInfo>();
+            var maxIndex = -1;
+            foreach (System.Reflection.FieldInfo field in typeFields)
+            {
+                var attrs = (CSVHeaderAttribute[])field.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
+                if ( attrs.Length > 0 && attrs[0].HasIndex )
+                {
+                    dict[attrs[0].Index] = field;
+                    if (maxIndex < attrs[0].Index)
+                    {
+                        maxIndex = attrs[0].Index;
+                    }
+                }
+            }
+
+            if (maxIndex >= 0)
+            {
+                fields = new FieldInfo[maxIndex + 1];
+                for (var i = 0; i <= maxIndex; i++)
+                {
+                    if ( dict.ContainsKey(i) )
+                    {
+                        fields[i] = dict[i];
+                    }
+                }
+            }
+            else
+            {
+                fields = new FieldInfo[0];
+            }
+        }
+
+        private void PrepareFieldInfoWithHeader()
         {
             var typeFields = typeof(T).GetFields();
 
@@ -142,6 +235,28 @@ namespace Youworks.Text
                         fields[i] = field;
                     }
                 }
+            }
+        }
+
+        private int GetSkipRowCount()
+        {
+            var attrs = typeof(T).GetCustomAttributes(typeof(CSVAttribute), true) as CSVAttribute[];
+            if (attrs == null || attrs.Length == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return attrs[0].SkipRowCount;
+            }
+        }
+
+        private void SkipHeaders()
+        {
+            int skipRowCount = GetSkipRowCount();
+            while (skipRowCount-- > 0)
+            {
+                GetCSVLine();
             }
         }
 

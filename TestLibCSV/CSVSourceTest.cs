@@ -132,6 +132,9 @@ namespace TestLibCSV
             string filename = "TestCSV_Escape.csv";
             using (var target = new CSVSource<Sample>(filename))
             {
+                //HasHeader
+                Assert.IsTrue(target.HasHeader);
+
                 //Filename get/set
                 Assert.AreEqual(filename, target.Filename);
                 target.Filename = "update.csv";
