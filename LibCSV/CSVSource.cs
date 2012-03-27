@@ -48,7 +48,7 @@ namespace Youworks.Text
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
-    public class CSVAttribute : Attribute
+    public class CSVFileAttribute : Attribute
     {
         /// <summary>
         /// CSVヘッダの有無
@@ -59,7 +59,7 @@ namespace Youworks.Text
         /// 読み飛ばす先頭行数
         /// </summary>
         public int SkipRowCount { get; set; }
-        public CSVAttribute()
+        public CSVFileAttribute()
             : base()
         {
             this.HasHeader = true;
@@ -151,7 +151,7 @@ namespace Youworks.Text
         {
             get
             {
-                var attrs = typeof(T).GetCustomAttributes(typeof(CSVAttribute), true) as CSVAttribute[];
+                var attrs = typeof(T).GetCustomAttributes(typeof(CSVFileAttribute), true) as CSVFileAttribute[];
                 if (attrs == null || attrs.Length == 0)
                 {
                     return true;
@@ -240,7 +240,7 @@ namespace Youworks.Text
 
         private int GetSkipRowCount()
         {
-            var attrs = typeof(T).GetCustomAttributes(typeof(CSVAttribute), true) as CSVAttribute[];
+            var attrs = typeof(T).GetCustomAttributes(typeof(CSVFileAttribute), true) as CSVFileAttribute[];
             if (attrs == null || attrs.Length == 0)
             {
                 return 0;

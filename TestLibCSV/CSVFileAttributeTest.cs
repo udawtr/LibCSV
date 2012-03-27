@@ -88,7 +88,7 @@ namespace TestLibCSV
             Assert.IsNull(firstLine);
         }
  
-        [CSV(HasHeader = false)]
+        [CSVFile(HasHeader = false)]
         private class TestClass
         {
             [CSVHeader(Index=0)]
@@ -98,14 +98,14 @@ namespace TestLibCSV
             public String Col2;
         }
 
-        [CSV(HasHeader = false)]
+        [CSVFile(HasHeader = false)]
         private class TestClass2
         {
             public String Col1;
             public String Col2;
         }
 
-        [CSV(SkipRowCount = 2)]
+        [CSVFile(SkipRowCount = 2)]
         private class TestClass3
         {
             public String Col1;
