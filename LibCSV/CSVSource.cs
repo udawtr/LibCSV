@@ -87,15 +87,45 @@ namespace Youworks.Text
             this.Property = property;
         }
 
+        internal Type ColumnType
+        {
+            get
+            {
+                if (Field != null) return Field.FieldType;
+                else return Property.PropertyType;
+            }
+        }
+
+        internal object TypeResolve(object value, Type type)
+        {
+            if (type == typeof(string))
+            {
+                return Convert.ToString(value);
+            }
+            else if (type == typeof(double))
+            {
+                return Convert.ToDouble(value);
+            }
+            else if (type == typeof(int))
+            {
+                return Convert.ToInt32(value);
+            }
+            else if (type == typeof(DateTime))
+            {
+                return Convert.ToDateTime(value);
+            }
+            throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
+        }
+
         internal void SetValue(object obj, object value)
         {
             if (Field != null)
             {
-                Field.SetValue(obj, value);
+                Field.SetValue(obj, TypeResolve(value, Field.FieldType));
             }
             else
             {
-                Property.SetValue(obj, value, null);
+                Property.SetValue(obj, TypeResolve(value, Property.PropertyType), null);
             }
         }
     }
@@ -130,6 +160,16 @@ namespace Youworks.Text
 
         private string[] header;
         private CSVColumn[] columns;
+
+        private int lineNo = 0;
+
+        public int LineNo
+        {
+            get
+            {
+                return lineNo;
+            }
+        }
 
         public string[] Header
         {
@@ -349,6 +389,7 @@ namespace Youworks.Text
             StringBuilder tmp = new StringBuilder();
             bool inDoubleQuote = false;
             bool escape = false;
+            lineNo++;
             for (int off = 0; off < sb.Length || inDoubleQuote; off++)
             {
                 if (!(off < sb.Length) && inDoubleQuote)
@@ -444,24 +485,31 @@ namespace Youworks.Text
         /// <returns></returns>
         public T ReadNext()
         {
-            if (!sr.EndOfStream)
+            int colNo = 0;
+            try
             {
-                string[] data = GetCSVLine();
-                T csvLine = new T();
-
-                int l = Math.Min(columns.Length, data.Length);
-                for (int i = 0; i < l; i++)
+                if (!sr.EndOfStream)
                 {
-                    if (columns[i] != null)
+                    string[] data = GetCSVLine();
+                    T csvLine = new T();
+
+                    int l = Math.Min(columns.Length, data.Length);
+                    for (colNo = 0; colNo < l; colNo++)
                     {
-                        columns[i].SetValue(csvLine, data[i]);
+                        if (columns[colNo] != null)
+                        {
+                            columns[colNo].SetValue(csvLine, data[colNo]);
+                        }
                     }
+
+                    return csvLine;
                 }
-
-                return csvLine;
+                return default(T);
             }
-
-            return default(T);
+            catch (FormatException fmtex)
+            {
+                throw new InvalidOperationException(String.Format("カラム'{2}'を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header[colNo], columns[colNo].ColumnType.Name), fmtex);
+            }
         }
 
         #endregion
