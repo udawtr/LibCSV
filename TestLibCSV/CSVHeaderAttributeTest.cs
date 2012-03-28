@@ -38,7 +38,7 @@ namespace TestLibCSV
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("A", firstLine.Field1);
-            Assert.AreEqual("B", firstLine.Col2);
+            Assert.AreEqual("B", firstLine.Field2);
         }
 
         /// <summary>
@@ -63,7 +63,8 @@ namespace TestLibCSV
         {
             [CSVHeader("Col1")]
             public String Field1;
-            public String Col2 { get; set; }
+            [CSVHeader("Col2")]
+            public String Field2 { get; set; }
         }
 
         private class IndexTestClass

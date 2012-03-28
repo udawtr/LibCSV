@@ -163,8 +163,7 @@ namespace TestLibCSV
             public String Col1;
             public String Col2;
             public String Col3 { get; set; }
-            [CSVHeader(Name="Col4")]
-            public String Extra { get; set; }
+            public String Col4 { get; set; }
         }
     }
 }
