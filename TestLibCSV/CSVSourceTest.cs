@@ -158,6 +158,26 @@ namespace TestLibCSV
             }
         }
 
+        /// <summary>
+        /// For issue#13
+        /// </summary>
+        [TestMethod]
+        public void LastEmptyValuesAreNotParseTest()
+        {
+            var stream = new System.IO.MemoryStream();
+            var text = "Col1,Col2,Col3,Col4\r\nA,B,C,\r\nD,E,F,";
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<Sample>(stream, System.Text.Encoding.UTF8);
+
+            var firstLine = target.ReadNext();
+            Assert.AreEqual("", firstLine.Col4);
+
+            var lastLine = target.ReadNext();
+            Assert.AreEqual("", lastLine.Col4);
+        }
+
         private class Sample
         {
             public String Col1;

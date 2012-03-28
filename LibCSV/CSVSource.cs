@@ -422,8 +422,7 @@ namespace Youworks.Text
                     }
                 }
             }
-            if (tmp.Length > 0)
-                values.Add(tmp.ToString());
+            values.Add(tmp.ToString());
 
             string[] lines = new string[values.Count];
             values.CopyTo(lines, 0);
