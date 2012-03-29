@@ -206,6 +206,18 @@ namespace TestLibCSV
             Assert.IsNull(firstLine.Col4);
         }
 
+        [TestMethod]
+        public void AutoTypeRecognitionEnumTest()
+        {
+            const string text = "Col1,Col2,Col3\r\nSunday,Monday,Tuesday";
+            var target = CreateCSVSourceFromText<AutoTypeSample4>(text);
+
+            var firstLine = target.ReadNext();
+            Assert.AreEqual(AutoTypeEnumSample.Sunday, firstLine.Col1);
+            Assert.AreEqual(AutoTypeEnumSample.Monday, firstLine.Col2);
+            Assert.AreEqual(AutoTypeEnumSample.Tuesday, firstLine.Col3);
+        }
+
         private class Sample
         {
             public String Col1;
@@ -236,6 +248,18 @@ namespace TestLibCSV
             public Double? Col2;
             public Int32? Col3;
             public DateTime? Col4;
+        }
+
+        private enum AutoTypeEnumSample
+        {
+            Sunday, Monday, Tuesday
+        }
+
+        private class AutoTypeSample4
+        {
+            public AutoTypeEnumSample Col1;
+            public AutoTypeEnumSample Col2;
+            public AutoTypeEnumSample Col3;
         }
     }
 }

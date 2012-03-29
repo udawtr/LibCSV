@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Linq;
 
 namespace Youworks.Text
 {
@@ -124,6 +125,10 @@ namespace Youworks.Text
             else if (type == typeof(DateTime?))
             {
                 return string.IsNullOrEmpty((string)value) ? null : (DateTime?)Convert.ToDateTime(value);
+            }
+            else if (type.IsEnum)
+            {
+                return Enum.Parse(type, (string)value);
             }
             throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
