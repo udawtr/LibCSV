@@ -11,68 +11,40 @@ namespace TestLibCSV
     ///CSVSourceTest のテスト クラスです。すべての
     ///CSVSourceTest 単体テストをここに含めます
     ///</summary>
-    [TestClass()]
+    [TestClass]
     public class CSVSourceTest
     {
-
-
-        private TestContext testContextInstance;
-
         /// <summary>
         ///現在のテストの実行についての情報および機能を
         ///提供するテスト コンテキストを取得または設定します。
         ///</summary>
-        public TestContext TestContext
+        public TestContext TestContext { get; set; }
+
+        /// <summary>
+        /// Helper for instantiation
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private CSVSource<T> CreateCSVSourceFromText<T>(string text) where T : new() 
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
+            var stream = new MemoryStream();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<T>(stream, System.Text.Encoding.UTF8);
+            return target;
         }
 
-        #region 追加のテスト属性
-        // 
-        //テストを作成するときに、次の追加属性を使用することができます:
-        //
-        //クラスの最初のテストを実行する前にコードを実行するには、ClassInitialize を使用
-        //[ClassInitialize()]
-        //public static void MyClassInitialize(TestContext testContext)
-        //{
-        //}
-        //
-        //クラスのすべてのテストを実行した後にコードを実行するには、ClassCleanup を使用
-        //[ClassCleanup()]
-        //public static void MyClassCleanup()
-        //{
-        //}
-        //
-        //各テストを実行する前にコードを実行するには、TestInitialize を使用
-        //[TestInitialize()]
-        //public void MyTestInitialize()
-        //{
-        //}
-        //
-        //各テストを実行した後にコードを実行するには、TestCleanup を使用
-        //[TestCleanup()]
-        //public void MyTestCleanup()
-        //{
-        //}
-        //
-        #endregion
-
-        [TestMethod()]
+        [TestMethod]
         public void CSVSourceConstructorTest()
         {
-            Stream inputStream = new System.IO.MemoryStream();
+            Stream inputStream = new MemoryStream();
             var target = new CSVSource<Sample>(inputStream);
             Assert.IsNotNull(target);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DeploymentItem("TestCSV_932_CRLF.csv")]
         public void CSVSourceConstructorTestWith932EncodedText()
         {
@@ -83,7 +55,7 @@ namespace TestLibCSV
             Assert.IsNull(target.ReadNext());
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DeploymentItem("TestCSV_UTF8_CRLF.csv")]
         public void CSVSourceConstructorTestWithUTF8EncodedText()
         {
@@ -94,7 +66,7 @@ namespace TestLibCSV
             Assert.IsNull(target.ReadNext());
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DeploymentItem("TestCSV_Escape.csv")]
         public void GetCSVLineTestOfSimpleEscape()
         {
@@ -110,22 +82,18 @@ namespace TestLibCSV
             Assert.AreEqual("ちがうことも\\あります。", line.Col3);
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void HeaderStartedWithSpacesTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,  Col2,Col3\r\nA,B,C";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<Sample>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,  Col2,Col3\r\nA,B,C";
+            var target = CreateCSVSourceFromText<Sample>(text);
             var obj = target.ReadNext();
             Assert.AreEqual("A", obj.Col1);
             Assert.AreEqual("B", obj.Col2);
             Assert.AreEqual("C", obj.Col3);
         }
 
-        [TestMethod()]
+        [TestMethod]
         [DeploymentItem("TestCSV_Escape.csv")]
         public void BasicProperyTest()
         {
@@ -165,12 +133,8 @@ namespace TestLibCSV
         [TestMethod]
         public void LastEmptyValuesAreNotParseTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,Col2,Col3,Col4\r\nA,B,C,\r\nD,E,F,";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<Sample>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,Col2,Col3,Col4\r\nA,B,C,\r\nD,E,F,";
+            var target = CreateCSVSourceFromText<Sample>(text);
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("", firstLine.Col4);
@@ -182,12 +146,8 @@ namespace TestLibCSV
         [TestMethod]
         public void AutoTypeRecognitionTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100,2010/1/3";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<AutoTypeSample>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100,2010/1/3";
+            var target = CreateCSVSourceFromText<AutoTypeSample>(text);
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("Literal", firstLine.Col1);
@@ -196,15 +156,12 @@ namespace TestLibCSV
             Assert.AreEqual(new DateTime(2010, 1, 3), firstLine.Col4);
         }
 
+
         [TestMethod]
         public void AutoTypeRecognitionCastExceptionTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100.5,2010/1/3";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<AutoTypeSample>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100.5,2010/1/3";
+            var target = CreateCSVSourceFromText<AutoTypeSample>(text);
 
             try
             {
@@ -221,12 +178,8 @@ namespace TestLibCSV
         [TestMethod]
         public void AutoTypeRecognitionUnknownTypeExceptionTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100.5,2010/1/3";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<AutoTypeSample2>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100.5,2010/1/3";
+            var target = CreateCSVSourceFromText<AutoTypeSample2>(text);
 
             try
             {
@@ -238,6 +191,19 @@ namespace TestLibCSV
                 Assert.IsInstanceOfType(ex, typeof(InvalidOperationException));
                 Assert.IsInstanceOfType(ex.InnerException, typeof(FormatException));
             }
+        }
+
+        [TestMethod]
+        public void AutoTypeRecognitionNullableTest()
+        {
+            const string text = "Col1,Col2,Col3,Col4\r\n,,,";
+            var target = CreateCSVSourceFromText<AutoTypeSample3>(text);
+            var firstLine = target.ReadNext();
+            Assert.AreEqual("", firstLine.Col1);
+
+            Assert.IsNull(firstLine.Col2);
+            Assert.IsNull(firstLine.Col3);
+            Assert.IsNull(firstLine.Col4);
         }
 
         private class Sample
@@ -262,6 +228,14 @@ namespace TestLibCSV
             public Double Col2;
             public Int32 Col3 { get; set; }
             public object Col4 { get; set; }
+        }
+
+        private class AutoTypeSample3
+        {
+            public string Col1;
+            public Double? Col2;
+            public Int32? Col3;
+            public DateTime? Col4;
         }
     }
 }

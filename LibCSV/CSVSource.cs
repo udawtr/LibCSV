@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
-using System.ComponentModel;
 
 namespace Youworks.Text
 {
@@ -106,13 +105,25 @@ namespace Youworks.Text
             {
                 return Convert.ToDouble(value);
             }
+            else if (type == typeof(double?))
+            {
+                return string.IsNullOrEmpty((string) value) ? null : (double?)Convert.ToDouble(value);
+            }
             else if (type == typeof(int))
             {
                 return Convert.ToInt32(value);
             }
+            else if (type == typeof(int?))
+            {
+                return string.IsNullOrEmpty((string) value) ? null : (Int32?)Convert.ToInt32(value);
+            }
             else if (type == typeof(DateTime))
             {
                 return Convert.ToDateTime(value);
+            }
+            else if (type == typeof(DateTime?))
+            {
+                return string.IsNullOrEmpty((string)value) ? null : (DateTime?)Convert.ToDateTime(value);
             }
             throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
