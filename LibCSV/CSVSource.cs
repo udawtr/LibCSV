@@ -106,30 +106,26 @@ namespace Youworks.Text
             {
                 return Convert.ToDouble(value);
             }
-            else if (type == typeof(double?))
-            {
-                return string.IsNullOrEmpty((string) value) ? null : (double?)Convert.ToDouble(value);
-            }
             else if (type == typeof(int))
             {
                 return Convert.ToInt32(value);
-            }
-            else if (type == typeof(int?))
-            {
-                return string.IsNullOrEmpty((string) value) ? null : (Int32?)Convert.ToInt32(value);
             }
             else if (type == typeof(DateTime))
             {
                 return Convert.ToDateTime(value);
             }
-            else if (type == typeof(DateTime?))
-            {
-                return string.IsNullOrEmpty((string)value) ? null : (DateTime?)Convert.ToDateTime(value);
-            }
             else if (type.IsEnum)
             {
                 return Enum.Parse(type, (string)value);
             }
+            else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                if (string.IsNullOrEmpty((string)value))
+                    return null;
+                else
+                    return TypeResolve(value, Nullable.GetUnderlyingType(type));
+            }
+
             throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
 
