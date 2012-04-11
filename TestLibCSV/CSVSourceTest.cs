@@ -218,6 +218,16 @@ namespace TestLibCSV
             Assert.AreEqual(AutoTypeEnumSample.Tuesday, firstLine.Col3);
         }
 
+        [TestMethod]
+        [DeploymentItem("TestCSV_932_CRLF.csv")]
+        public void ToListTest()
+        {
+            const string filename = "TestCSV_932_CRLF.csv";
+            var target = CSVSource<Sample>.ToList(filename, System.Text.Encoding.GetEncoding(932));
+            Assert.IsNotNull(target);
+            Assert.AreEqual(2, target.Count);
+        }
+
         private class Sample
         {
             public String Col1;
