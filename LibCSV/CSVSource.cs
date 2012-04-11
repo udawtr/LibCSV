@@ -482,6 +482,37 @@ namespace Youworks.Text
             return lines;
         }
 
+        public static List<T> ToList(string filename)
+        {
+            return ToList(filename, Encoding.GetEncoding(932));
+        }
+
+        public static List<T> ToList(string filename, Encoding encoding)
+        {
+            using(var stream =new FileStream(filename, FileMode.Open))
+            {
+                return ToList(stream, encoding);
+            }
+        }
+
+        public static List<T> ToList(Stream stream)
+        {
+            return ToList(stream, Encoding.GetEncoding(932));
+        }
+
+        public static List<T> ToList(Stream stream, Encoding encoding)
+        {
+            var rows = new List<T>();
+            using(var reader =new CSVSource<T>(stream, encoding))
+            {
+                while(reader.HasMore)
+                {
+                    rows.Add(reader.ReadNext());
+                }
+            }
+            return rows;
+        }
+
         #region ImportSource メンバ
 
         public object ReadNextObject()
