@@ -49,10 +49,13 @@ namespace TestLibCSV
         public void CSVSourceConstructorTestWith932EncodedText()
         {
             string filename = "TestCSV_932_CRLF.csv";
-            var target = new CSVSource<Sample>(filename);
-            Assert.IsNotNull(target.ReadNext());
-            Assert.IsNotNull(target.ReadNext());
-            Assert.IsNull(target.ReadNext());
+            using (var target = new CSVSource<Sample>(filename))
+            {
+                Assert.IsNotNull(target.ReadNext());
+                Assert.IsNotNull(target.ReadNext());
+                Assert.IsNull(target.ReadNext());
+                target.Close();
+            }
         }
 
         [TestMethod]
@@ -60,10 +63,13 @@ namespace TestLibCSV
         public void CSVSourceConstructorTestWithUTF8EncodedText()
         {
             string filename = "TestCSV_UTF8_CRLF.csv";
-            var target = new CSVSource<Sample>(filename, System.Text.Encoding.UTF8);
-            Assert.IsNotNull(target.ReadNext());
-            Assert.IsNotNull(target.ReadNext());
-            Assert.IsNull(target.ReadNext());
+            using (var target = new CSVSource<Sample>(filename, System.Text.Encoding.UTF8))
+            {
+                Assert.IsNotNull(target.ReadNext());
+                Assert.IsNotNull(target.ReadNext());
+                Assert.IsNull(target.ReadNext());
+                target.Close();
+            }
         }
 
         [TestMethod]

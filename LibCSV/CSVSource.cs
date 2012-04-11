@@ -513,6 +513,15 @@ namespace Youworks.Text
             return rows;
         }
 
+        public void Close()
+        {
+            if (this.sr != null)
+            {
+                sr.Close();
+                sr = null;
+            }
+        }
+
         #region ImportSource メンバ
 
         public object ReadNextObject()
