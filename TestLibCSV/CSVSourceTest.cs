@@ -175,7 +175,7 @@ namespace TestLibCSV
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("カラム'Col3'をInt32型に変換できません。[2行3列]", ex.Message);
+                Assert.AreEqual("カラム'Col3'(\"100.5\")をInt32型に変換できません。[2行3列]", ex.Message);
                 Assert.IsInstanceOfType(ex, typeof(InvalidOperationException));
                 Assert.IsInstanceOfType(ex.InnerException, typeof(FormatException));
             }
@@ -193,7 +193,7 @@ namespace TestLibCSV
             }
             catch (Exception ex)
             {
-                Assert.AreEqual("カラム'Col1'をObject型に変換できません。[2行1列]", ex.Message);
+                Assert.AreEqual("カラム'Col1'(\"Literal\")をObject型に変換できません。[2行1列]", ex.Message);
                 Assert.IsInstanceOfType(ex, typeof(InvalidOperationException));
                 Assert.IsInstanceOfType(ex.InnerException, typeof(FormatException));
             }

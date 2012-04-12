@@ -538,11 +538,13 @@ namespace Youworks.Text
         public T ReadNext()
         {
             int colNo = 0;
+            string[] data = null;
+            
             try
             {
                 if (!sr.EndOfStream)
                 {
-                    string[] data = GetCSVLine();
+                    data = GetCSVLine();
                     T csvLine = new T();
 
                     int l = Math.Min(columns.Length, data.Length);
@@ -560,7 +562,14 @@ namespace Youworks.Text
             }
             catch (FormatException fmtex)
             {
-                throw new InvalidOperationException(String.Format("カラム'{2}'を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header != null ? header[colNo] : (colNo+1).ToString(), columns[colNo].ColumnType.Name), fmtex);
+                Type type = columns[colNo].ColumnType;
+                string typeName = type.Name;
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    type = Nullable.GetUnderlyingType(type);
+                    typeName = String.Format("Nullable<{0}>", type.Name);
+                }
+                throw new InvalidOperationException(String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header != null ? header[colNo] : (colNo+1).ToString(), typeName, data != null ? data[colNo] : "--"), fmtex);
             }
         }
 
