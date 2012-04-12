@@ -551,7 +551,7 @@ namespace Youworks.Text
             }
             catch (FormatException fmtex)
             {
-                throw new InvalidOperationException(String.Format("カラム'{2}'を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header[colNo], columns[colNo].ColumnType.Name), fmtex);
+                throw new InvalidOperationException(String.Format("カラム'{2}'を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header != null ? header[colNo] : (colNo+1).ToString(), columns[colNo].ColumnType.Name), fmtex);
             }
         }
 
