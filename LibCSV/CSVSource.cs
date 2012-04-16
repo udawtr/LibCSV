@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -9,17 +11,17 @@ namespace Youworks.Text
 {
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    public class CSVIgnoreAttribute : Attribute
+    public sealed class CSVIgnoreAttribute : Attribute
     {
     }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
-    public class CSVHeaderAttribute : Attribute
+    public sealed class CSVHeaderAttribute : Attribute
     {
         /// <summary>
         /// CSVヘッダ名
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         public int Index { get; set; }
 
@@ -54,7 +56,7 @@ namespace Youworks.Text
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
-    public class CSVFileAttribute : Attribute
+    public sealed class CSVFileAttribute : Attribute
     {
         /// <summary>
         /// CSVヘッダの有無
@@ -482,12 +484,14 @@ namespace Youworks.Text
             return lines;
         }
 
-        public static List<T> ToList(string filename)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
+        public static ReadOnlyCollection<T> ToList(string filename)
         {
             return ToList(filename, Encoding.GetEncoding(932));
         }
 
-        public static List<T> ToList(string filename, Encoding encoding)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
+        public static ReadOnlyCollection<T> ToList(string filename, Encoding encoding)
         {
             using(var stream =new FileStream(filename, FileMode.Open))
             {
@@ -495,12 +499,14 @@ namespace Youworks.Text
             }
         }
 
-        public static List<T> ToList(Stream stream)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
+        public static ReadOnlyCollection<T> ToList(Stream stream)
         {
             return ToList(stream, Encoding.GetEncoding(932));
         }
 
-        public static List<T> ToList(Stream stream, Encoding encoding)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
+        public static ReadOnlyCollection<T> ToList(Stream stream, Encoding encoding)
         {
             var rows = new List<T>();
             using(var reader =new CSVSource<T>(stream, encoding))
@@ -510,7 +516,7 @@ namespace Youworks.Text
                     rows.Add(reader.ReadNext());
                 }
             }
-            return rows;
+            return new ReadOnlyCollection<T>(rows);
         }
 
         public void Close()

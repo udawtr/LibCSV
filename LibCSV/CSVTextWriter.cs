@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Youworks.Text
 {
-    public class CSVTextWriter : IDisposable
+    public sealed class CSVTextWriter : IDisposable
     {
         private System.IO.StreamWriter baseWriter;
 
@@ -32,17 +32,23 @@ namespace Youworks.Text
 
         public void Write(IEnumerable<object> line)
         {
-            foreach (var item in line)
+            if (line != null)
             {
-                Write(Convert.ToString(item));
+                foreach (var item in line)
+                {
+                    Write(Convert.ToString(item));
+                }
             }
         }
 
         public void Write(string[] line)
         {
-            foreach (var item in line)
+            if (line != null)
             {
-                Write(item);
+                foreach (var item in line)
+                {
+                    Write(item);
+                }
             }
         }
 
@@ -73,6 +79,7 @@ namespace Youworks.Text
                 baseWriter.Close();
                 baseWriter.Dispose();
             }
+            GC.SuppressFinalize(this);
         }
 
         #endregion
