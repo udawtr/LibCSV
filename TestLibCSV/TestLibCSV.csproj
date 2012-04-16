@@ -54,6 +54,7 @@
     <Compile Include="CSVHeaderAttributeTest.cs" />
     <Compile Include="CSVIgnoreAttributeTest.cs" />
     <Compile Include="CSVSourceTest.cs" />
+    <Compile Include="CSVTextWriterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
