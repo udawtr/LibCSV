@@ -149,7 +149,7 @@ namespace Youworks.Text
         object ReadNextObject();
     }
 
-    public sealed class CSVSource<T> : ICSVSource, IDisposable where T : new()
+    public sealed class CSVSource<T> : ICSVSource, IEnumerable<T>, IDisposable where T : new()
     {
         private string filename;
 
@@ -590,5 +590,21 @@ namespace Youworks.Text
         }
 
         #endregion
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            while (HasMore)
+            {
+                yield return ReadNext();
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            while (HasMore)
+            {
+                yield return ReadNextObject();
+            }
+        }
     }
 }
