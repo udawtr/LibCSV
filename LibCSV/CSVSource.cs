@@ -485,13 +485,13 @@ namespace Youworks.Text
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
-        public static ReadOnlyCollection<T> ToList(string filename)
+        public static IList<T> ToList(string filename)
         {
             return ToList(filename, Encoding.GetEncoding(932));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
-        public static ReadOnlyCollection<T> ToList(string filename, Encoding encoding)
+        public static IList<T> ToList(string filename, Encoding encoding)
         {
             using(var stream =new FileStream(filename, FileMode.Open))
             {
@@ -500,13 +500,13 @@ namespace Youworks.Text
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
-        public static ReadOnlyCollection<T> ToList(Stream stream)
+        public static IList<T> ToList(Stream stream)
         {
             return ToList(stream, Encoding.GetEncoding(932));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
-        public static ReadOnlyCollection<T> ToList(Stream stream, Encoding encoding)
+        public static IList<T> ToList(Stream stream, Encoding encoding)
         {
             var rows = new List<T>();
             using(var reader =new CSVSource<T>(stream, encoding))
@@ -516,7 +516,7 @@ namespace Youworks.Text
                     rows.Add(reader.ReadNext());
                 }
             }
-            return new ReadOnlyCollection<T>(rows);
+            return rows;
         }
 
         public void Close()
