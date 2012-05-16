@@ -29,13 +29,16 @@ namespace Youworks.Text
             : base()
         {
             this.Index = -1;
+            this.HasDefaultValue = false;
+            this._DefaultValue = null;
+            this.IfInvalid = EnumIfInvalid.THROW_EXCEPTION;
+            this.Converter = null;
         }
 
         public CSVHeaderAttribute(string name)
-            : base()
+            : this()
         {
             this.Name = name;
-            this.Index = -1;
         }
 
         public bool HasName
@@ -52,6 +55,26 @@ namespace Youworks.Text
             {
                 return Index >= 0;
             }
+        }
+
+        public bool HasDefaultValue { get; private set; }
+        private object _DefaultValue;
+        public object DefaultValue
+        {
+            get { return _DefaultValue; }
+            set {
+                _DefaultValue = value;
+                HasDefaultValue = true;
+            }
+        }
+
+        public EnumIfInvalid IfInvalid { get; set; }
+
+        public Type Converter { get; set; }
+
+        public enum EnumIfInvalid
+        {
+            SET_DEFAULT, THROW_EXCEPTION
         }
     }
 
@@ -136,12 +159,55 @@ namespace Youworks.Text
         {
             if (Field != null)
             {
-                Field.SetValue(obj, TypeResolve(value, Field.FieldType));
+                Field.SetValue(obj, ValueToSet(value, Field));
             }
             else
             {
-                Property.SetValue(obj, TypeResolve(value, Property.PropertyType), null);
+                Property.SetValue(obj, ValueToSet(value, Property), null);
             }
+        }
+
+        private object ValueToSet(object value, MemberInfo info)
+        {
+            object result;
+            var csvHeaderAttribute =
+                (CSVHeaderAttribute)
+                Attribute.GetCustomAttribute(info, typeof (CSVHeaderAttribute), true) ?? new CSVHeaderAttribute();
+            if (csvHeaderAttribute.Converter != null)
+            {
+                var converter =
+                    (IColumnConverter)
+                    csvHeaderAttribute.Converter.InvokeMember(null,
+                                                              BindingFlags.CreateInstance,
+                                                              null,
+                                                              null,
+                                                              new object[] {});
+                result = converter.Convert(value);
+            }
+            else if (string.IsNullOrEmpty((string) value) && csvHeaderAttribute.HasDefaultValue)
+            {
+                result = csvHeaderAttribute.DefaultValue;
+            }
+            else
+            {
+                try
+                {
+                    result = TypeResolve(value, ColumnType);
+                }
+                catch (FormatException)
+                {
+                    if (csvHeaderAttribute.IfInvalid == CSVHeaderAttribute.EnumIfInvalid.SET_DEFAULT)
+                    {
+                        result = csvHeaderAttribute.DefaultValue;
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 
@@ -155,7 +221,6 @@ namespace Youworks.Text
         private string filename;
         public ITypeResolver TypeResolver
         {
-            get { return CSVColumn.TypeResolver; }
             set { CSVColumn.TypeResolver = value; }
         }
 

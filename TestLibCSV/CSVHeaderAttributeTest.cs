@@ -1,10 +1,11 @@
-﻿using Youworks.Text;
+﻿using System.IO;
+using Youworks.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
 namespace TestLibCSV
 {
-    [TestClass()]
+    [TestClass]
     public class CSVHeaderAttributeTest
     {
 
@@ -22,19 +23,31 @@ namespace TestLibCSV
             }
         }
 
+        /// <summary>
+        /// Helper for instantiation
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private CSVSource<T> CreateCSVSourceFromText<T>(string text) where T : new()
+        {
+            var stream = new MemoryStream();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<T>(stream, System.Text.Encoding.UTF8);
+            return target;
+        }
+
 
         /// <summary>
         ///Test for CSVHeaderAttribute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CSVHeaderAttributeNameTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Col1,Col2\r\nA,B\r\nD,E";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<TestClass>(stream, System.Text.Encoding.UTF8);
+            const string text = "Col1,Col2\r\nA,B\r\nD,E";
+            var target = CreateCSVSourceFromText<TestClass>(text);
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("A", firstLine.Field1);
@@ -44,15 +57,11 @@ namespace TestLibCSV
         /// <summary>
         ///Test for CSVHeaderAttribute
         ///</summary>
-        [TestMethod()]
+        [TestMethod]
         public void CSVHeaderAttributeIndexTest()
         {
-            var stream = new System.IO.MemoryStream();
-            var text = "Foo,Bar,Buzz\r\nA,B,C\r\nD,E,F";
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<IndexTestClass>(stream, System.Text.Encoding.UTF8);
+            const string text = "Foo,Bar,Buzz\r\nA,B,C\r\nD,E,F";
+            var target = CreateCSVSourceFromText<IndexTestClass>(text);
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("A", firstLine.Col1);
@@ -74,6 +83,73 @@ namespace TestLibCSV
 
             [CSVHeader(Index = 2)]
             public string Col3 { get; set; }
+        }
+
+        [TestMethod]
+        public void DefaultValueTest()
+        {
+            const string text = ",,,";
+            var target = CreateCSVSourceFromText<DefaultValueTestRow>(text);
+
+            var line = target.ReadNext();
+            Assert.AreEqual(100, line.Int1);
+            Assert.AreEqual(100, line.Int2);
+            Assert.AreEqual(200, line.Int3);
+            Assert.AreEqual(200, line.Int4);
+        }
+
+        [TestMethod]
+        public void SetDefaultIfInvalidValueGivenTest()
+        {
+            const string text = "1,2,aaa,bbb";
+            var target = CreateCSVSourceFromText<DefaultValueTestRow>(text);
+
+            var line = target.ReadNext();
+            Assert.AreEqual(1, line.Int1);
+            Assert.AreEqual(2, line.Int2);
+            Assert.AreEqual(200, line.Int3);
+            Assert.AreEqual(200, line.Int4);
+        }
+
+        [CSVFile(HasHeader = false, SkipRowCount = 0)]
+        private class DefaultValueTestRow
+        {
+            [CSVHeader(Index = 0, DefaultValue = 100)]
+            public int Int1;
+
+            [CSVHeader(Index = 1, DefaultValue = 100)]
+            public int Int2 { get; set; }
+
+            [CSVHeader(Index = 2, DefaultValue = 200, IfInvalid = CSVHeaderAttribute.EnumIfInvalid.SET_DEFAULT)]
+            public int Int3;
+
+            [CSVHeader(Index = 3, DefaultValue = 200, IfInvalid = CSVHeaderAttribute.EnumIfInvalid.SET_DEFAULT)]
+            public int Int4 { get; set; }
+        }
+
+        [TestMethod]
+        public void CustomConverterTest()
+        {
+            const string text = "aaa";
+            var target = CreateCSVSourceFromText<CustomConverterTestRow>(text);
+
+            var line = target.ReadNext();
+            Assert.AreEqual(100, line.Col1);
+        }
+
+        [CSVFile(HasHeader = false, SkipRowCount = 0)]
+        private class CustomConverterTestRow
+        {
+            [CSVHeader(Index = 0, Converter = typeof (Always100))]
+            public int Col1;
+
+            private class Always100 : IColumnConverter
+            {
+                public object Convert(object value)
+                {
+                    return 100;
+                }
+            }
         }
     }
 }
