@@ -29,13 +29,15 @@ namespace Youworks.Text
             : base()
         {
             this.Index = -1;
+            this.HasDefaultValue = false;
+            this._DefaultValue = null;
+            this.InvalidAction = CSVValueInvalidAction.ThrowException;
         }
 
         public CSVHeaderAttribute(string name)
-            : base()
+            : this()
         {
             this.Name = name;
-            this.Index = -1;
         }
 
         public bool HasName
@@ -53,6 +55,24 @@ namespace Youworks.Text
                 return Index >= 0;
             }
         }
+
+        public bool HasDefaultValue { get; private set; }
+        private object _DefaultValue;
+        public object DefaultValue
+        {
+            get { return _DefaultValue; }
+            set {
+                _DefaultValue = value;
+                HasDefaultValue = true;
+            }
+        }
+
+        public CSVValueInvalidAction InvalidAction { get; set; }
+    }
+
+    public enum CSVValueInvalidAction
+    {
+        DefaultValue, ThrowException
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
@@ -79,7 +99,7 @@ namespace Youworks.Text
     {
         private FieldInfo Field;
         private PropertyInfo Property;
-        internal static ITypeResolver TypeResolver = new DefaultTypeResolver();
+        internal static ICSVTypeResolver TypeResolver = new CSVGeneralTypeResolver();
         internal CSVColumn(FieldInfo field)
         {
             this.Field = field;
@@ -99,49 +119,82 @@ namespace Youworks.Text
             }
         }
 
-        internal object TypeResolve(object value, Type type)
+        internal object TypeResolve(object value, Type type, int lineNo, string columnName)
         {
             if (type == typeof(string))
             {
-                return TypeResolver.ResolveString(value);
+                return TypeResolver.ResolveString(new CSVTypeResolverArgs { Type = type, ColumnName = columnName, LineNo = lineNo, Value = value });
             }
             else if (type == typeof(double))
             {
-                return TypeResolver.ResolveDouble(value);
+                return TypeResolver.ResolveDouble(new CSVTypeResolverArgs { Type = type, ColumnName = columnName, LineNo = lineNo, Value = value });
             }
             else if (type == typeof(int))
             {
-                return TypeResolver.ResolveInt(value);
+                return TypeResolver.ResolveInt(new CSVTypeResolverArgs { Type = type, ColumnName = columnName, LineNo = lineNo, Value = value });
             }
             else if (type == typeof(DateTime))
             {
-                return TypeResolver.ResolveDateTime(value);
+                return TypeResolver.ResolveDateTime(new CSVTypeResolverArgs { Type = type, ColumnName = columnName, LineNo = lineNo, Value = value });
             }
             else if (type.IsEnum)
             {
-                return TypeResolver.ResolveEnum(type, value);
+                return TypeResolver.ResolveEnum(new CSVTypeResolverArgs { Type = type, ColumnName = columnName, LineNo = lineNo, Value = value });
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if (string.IsNullOrEmpty((string)value))
                     return null;
                 else
-                    return TypeResolve(value, Nullable.GetUnderlyingType(type));
+                    return TypeResolve(value, Nullable.GetUnderlyingType(type), lineNo, columnName);
             }
 
             throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
 
-        internal void SetValue(object obj, object value)
+        internal void SetValue(object obj, object value, int lineNo)
         {
             if (Field != null)
             {
-                Field.SetValue(obj, TypeResolve(value, Field.FieldType));
+                Field.SetValue(obj, ValueToSet(value, Field, lineNo));
             }
             else
             {
-                Property.SetValue(obj, TypeResolve(value, Property.PropertyType), null);
+                Property.SetValue(obj, ValueToSet(value, Property, lineNo), null);
             }
+        }
+
+        private object ValueToSet(object value, MemberInfo info, int lineNo)
+        {
+            object result;
+            var csvHeaderAttribute =
+                (CSVHeaderAttribute)
+                Attribute.GetCustomAttribute(info, typeof (CSVHeaderAttribute), true) ?? new CSVHeaderAttribute();
+
+            if (string.IsNullOrEmpty((string) value) && csvHeaderAttribute.HasDefaultValue)
+            {
+                result = csvHeaderAttribute.DefaultValue;
+            }
+            else
+            {
+                try
+                {
+                    result = TypeResolve(value, ColumnType, lineNo, info.Name);
+                }
+                catch (FormatException)
+                {
+                    if (csvHeaderAttribute.InvalidAction == CSVValueInvalidAction.DefaultValue)
+                    {
+                        result = csvHeaderAttribute.DefaultValue;
+                    }
+                    else //if (csvHeaderAttribute.IfInvalid == CSVHeaderAttribute.EnumIfInvalid.THROW_EXCEPTION)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 
@@ -153,9 +206,8 @@ namespace Youworks.Text
     public sealed class CSVSource<T> : ICSVSource, IEnumerable<T>, IDisposable where T : new()
     {
         private string filename;
-        public ITypeResolver TypeResolver
+        public ICSVTypeResolver TypeResolver
         {
-            get { return CSVColumn.TypeResolver; }
             set { CSVColumn.TypeResolver = value; }
         }
 
@@ -564,7 +616,7 @@ namespace Youworks.Text
                     {
                         if (columns[colNo] != null)
                         {
-                            columns[colNo].SetValue(csvLine, data[colNo]);
+                            columns[colNo].SetValue(csvLine, data[colNo], lineNo);
                         }
                     }
 

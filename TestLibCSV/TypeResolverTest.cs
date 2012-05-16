@@ -11,23 +11,39 @@ namespace TestLibCSV
     [TestClass]
     public class TypeResolverTest
     {
+        /// <summary>
+        /// Helper for instantiation
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        private CSVSource<T> CreateCSVSourceFromText<T>(string text) where T : new()
+        {
+            var stream = new MemoryStream();
+            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+            stream.Write(bytes, 0, bytes.Length);
+            stream.Position = 0;
+            var target = new CSVSource<T>(stream, System.Text.Encoding.UTF8);
+            return target;
+        }
+
         [CSVFile(HasHeader = false, SkipRowCount = 0)]
         private class TestCSVRow
         {
             [CSVHeader(Index = 0)]
-            public int firstInt { get; set; }
+            public int IntColumn { get; set; }
 
             [CSVHeader(Index = 1)]
-            public double secondDouble { get; set; }
+            public double DoubleColumn { get; set; }
         }
 
-        private class TypeResolverWithDefaultValue : DefaultTypeResolver
+        private class TypeResolverWithDefaultValue : CSVGeneralTypeResolver
         {
-            public override int ResolveInt(object value)
+            public override int ResolveInt(CSVTypeResolverArgs args)
             {
                 try
                 {
-                    return base.ResolveInt(value);
+                    return base.ResolveInt(args);
                 }
                 catch(FormatException)
                 {
@@ -35,11 +51,11 @@ namespace TestLibCSV
                 }
             }
 
-            public override double ResolveDouble(object value)
+            public override double ResolveDouble(CSVTypeResolverArgs args)
             {
                 try
                 {
-                    return base.ResolveDouble(value);
+                    return base.ResolveDouble(args);
                 }
                 catch(FormatException)
                 {
@@ -49,19 +65,15 @@ namespace TestLibCSV
         }
 
         [TestMethod]
-        public void InvalidNumbersTest()
+        public void CustomTypeResolverTest()
         {
-            const string text = "-,";
-            var stream = new MemoryStream();
-            var bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            stream.Write(bytes, 0, bytes.Length);
-            stream.Position = 0;
-            var target = new CSVSource<TestCSVRow>(stream, System.Text.Encoding.UTF8);
+            const string text = "-,aa";
+            var target = CreateCSVSourceFromText<TestCSVRow>(text);
             target.TypeResolver = new TypeResolverWithDefaultValue();
             var line = target.ReadNext();
 
-            Assert.AreEqual(100, line.firstInt);
-            Assert.AreEqual(200.0D, line.secondDouble);
+            Assert.AreEqual(100, line.IntColumn);
+            Assert.AreEqual(200.0D, line.DoubleColumn);
         }
     }
 }

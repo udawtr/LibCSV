@@ -157,7 +157,7 @@ namespace TestLibCSV
 
             var firstLine = target.ReadNext();
             Assert.AreEqual("Literal", firstLine.Col1);
-            Assert.AreEqual((double)3.4, firstLine.Col2);
+            Assert.AreEqual(3.4D, firstLine.Col2);
             Assert.AreEqual(100, firstLine.Col3);
             Assert.AreEqual(new DateTime(2010, 1, 3), firstLine.Col4);
         }
@@ -171,7 +171,7 @@ namespace TestLibCSV
 
             try
             {
-                var firstLine = target.ReadNext();
+                target.ReadNext();
             }
             catch (Exception ex)
             {
@@ -189,7 +189,7 @@ namespace TestLibCSV
 
             try
             {
-                var firstLine = target.ReadNext();
+                target.ReadNext();
             }
             catch (Exception ex)
             {
@@ -202,14 +202,20 @@ namespace TestLibCSV
         [TestMethod]
         public void AutoTypeRecognitionNullableTest()
         {
-            const string text = "Col1,Col2,Col3,Col4\r\n,,,";
+            const string text = "Col1,Col2,Col3,Col4\r\nLiteral,3.4,100,2010/1/3\n,,,";
             var target = CreateCSVSourceFromText<AutoTypeSample3>(text);
-            var firstLine = target.ReadNext();
-            Assert.AreEqual("", firstLine.Col1);
 
-            Assert.IsNull(firstLine.Col2);
-            Assert.IsNull(firstLine.Col3);
-            Assert.IsNull(firstLine.Col4);
+            var firstLine = target.ReadNext();
+            Assert.AreEqual("Literal", firstLine.Col1);
+            Assert.AreEqual(3.4D, firstLine.Col2);
+            Assert.AreEqual(100, firstLine.Col3);
+            Assert.AreEqual(new DateTime(2010, 1, 3), firstLine.Col4);
+
+            var secondLine = target.ReadNext();
+            Assert.AreEqual("", secondLine.Col1);
+            Assert.IsNull(secondLine.Col2);
+            Assert.IsNull(secondLine.Col3);
+            Assert.IsNull(secondLine.Col4);
         }
 
         [TestMethod]
