@@ -56,6 +56,7 @@
     <Compile Include="CSVSourceTest.cs" />
     <Compile Include="CSVTextWriterTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TypeResolverTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LibCSV\LibCSV.csproj">
