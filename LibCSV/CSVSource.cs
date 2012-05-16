@@ -79,6 +79,7 @@ namespace Youworks.Text
     {
         private FieldInfo Field;
         private PropertyInfo Property;
+        internal static ITypeResolver TypeResolver = new DefaultTypeResolver();
         internal CSVColumn(FieldInfo field)
         {
             this.Field = field;
@@ -102,23 +103,23 @@ namespace Youworks.Text
         {
             if (type == typeof(string))
             {
-                return Convert.ToString(value);
+                return TypeResolver.ResolveString(value);
             }
             else if (type == typeof(double))
             {
-                return Convert.ToDouble(value);
+                return TypeResolver.ResolveDouble(value);
             }
             else if (type == typeof(int))
             {
-                return Convert.ToInt32(value);
+                return TypeResolver.ResolveInt(value);
             }
             else if (type == typeof(DateTime))
             {
-                return Convert.ToDateTime(value);
+                return TypeResolver.ResolveDateTime(value);
             }
             else if (type.IsEnum)
             {
-                return Enum.Parse(type, (string)value);
+                return TypeResolver.ResolveEnum(type, value);
             }
             else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -152,6 +153,11 @@ namespace Youworks.Text
     public sealed class CSVSource<T> : ICSVSource, IEnumerable<T>, IDisposable where T : new()
     {
         private string filename;
+        public ITypeResolver TypeResolver
+        {
+            get { return CSVColumn.TypeResolver; }
+            set { CSVColumn.TypeResolver = value; }
+        }
 
         /// <summary>
         /// ファイル名
