@@ -44,6 +44,7 @@
     <Compile Include="DefaultTypeResolver.cs" />
     <Compile Include="CSVSource.cs" />
     <Compile Include="CSVTextWriter.cs" />
+    <Compile Include="IColumnConverter.cs" />
     <Compile Include="ITypeResolver.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -75,6 +75,22 @@ namespace Youworks.Text
         }
     }
 
+    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
+    public sealed class CSVColumnConverter : Attribute
+    {
+        private readonly Type _typeResolverClass;
+
+        public Type TypeResolverClass
+        {
+            get { return _typeResolverClass; }
+        }
+
+        public CSVColumnConverter(Type type)
+        {
+            _typeResolverClass = type;
+        }
+    }
+
     internal class CSVColumn
     {
         private FieldInfo Field;
@@ -136,11 +152,46 @@ namespace Youworks.Text
         {
             if (Field != null)
             {
-                Field.SetValue(obj, TypeResolve(value, Field.FieldType));
+                var attr =
+                    (CSVColumnConverter)
+                    Attribute.GetCustomAttribute(Field, typeof (CSVColumnConverter), true);
+                if (attr != null)
+                {
+                    var converter =
+                        (IColumnConverter)
+                        attr.TypeResolverClass.InvokeMember(null,
+                                                            System.Reflection.BindingFlags.CreateInstance,
+                                                            null,
+                                                            null,
+                                                            new object[] {});
+                    Field.SetValue(obj, converter.Convert(value));
+                }
+                else
+                {
+                    Field.SetValue(obj, TypeResolve(value, Field.FieldType));
+                }
             }
             else
             {
-                Property.SetValue(obj, TypeResolve(value, Property.PropertyType), null);
+                var typeResolver = TypeResolver;
+                var attr =
+                    (CSVColumnConverter)
+                    Attribute.GetCustomAttribute(Property, typeof (CSVColumnConverter), true);
+                if (attr != null)
+                {
+                    var converter =
+                        (IColumnConverter)
+                        attr.TypeResolverClass.InvokeMember(null,
+                                                            System.Reflection.BindingFlags.CreateInstance,
+                                                            null,
+                                                            null,
+                                                            new object[] {});
+                    Property.SetValue(obj, converter.Convert(value), null);
+                }
+                else
+                {
+                    Property.SetValue(obj, TypeResolve(value, Property.PropertyType), null);
+                }
             }
         }
     }
