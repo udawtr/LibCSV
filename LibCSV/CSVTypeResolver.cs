@@ -23,22 +23,50 @@ namespace Youworks.Text
     {
         public virtual string ResolveString(CSVTypeResolverArgs args)
         {
-            return args.Value.ToString();
+            try
+            {
+                return args.Value.ToString();
+            }
+            catch (FormatException e)
+            {
+                throw new InvalidValueException(e.Message, e);
+            }
         }
 
         public virtual double ResolveDouble(CSVTypeResolverArgs args)
         {
-            return Convert.ToDouble(args.Value);
+            try
+            {
+                return Convert.ToDouble(args.Value);
+            }
+            catch (FormatException e)
+            {
+                throw new InvalidValueException(e.Message, e);
+            }
         }
 
         public virtual int ResolveInt(CSVTypeResolverArgs args)
         {
-            return Convert.ToInt32(args.Value);
+            try
+            {
+                return Convert.ToInt32(args.Value);
+            }
+            catch (FormatException e)
+            {
+                throw new InvalidValueException(e.Message, e);
+            }
         }
 
         public virtual DateTime ResolveDateTime(CSVTypeResolverArgs args)
         {
-            return Convert.ToDateTime(args.Value);
+            try
+            {
+                return Convert.ToDateTime(args.Value);
+            }
+            catch (FormatException e)
+            {
+                throw new InvalidValueException(e.Message, e);
+            }
         }
 
         public virtual object ResolveEnum(CSVTypeResolverArgs args)
