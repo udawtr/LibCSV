@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Youworks.Text;
 
@@ -45,7 +44,7 @@ namespace TestLibCSV
                 {
                     return base.ResolveInt(args);
                 }
-                catch(FormatException)
+                catch(InvalidValueException)
                 {
                     return 100;
                 }
@@ -57,7 +56,7 @@ namespace TestLibCSV
                 {
                     return base.ResolveDouble(args);
                 }
-                catch(FormatException)
+                catch(InvalidValueException)
                 {
                     return 200.0D;
                 }
@@ -71,6 +70,9 @@ namespace TestLibCSV
             var target = CreateCSVSourceFromText<TestCSVRow>(text);
             target.TypeResolver = new TypeResolverWithDefaultValue();
             var line = target.ReadNext();
+
+            // 他のテストに影響を与えないために、 TypeResolver を元に戻す
+            target.TypeResolver = new CSVGeneralTypeResolver();
 
             Assert.AreEqual(100, line.IntColumn);
             Assert.AreEqual(200.0D, line.DoubleColumn);

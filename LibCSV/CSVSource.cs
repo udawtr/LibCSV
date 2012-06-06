@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.IO;
 using System.Reflection;
-using System.Linq;
 
 namespace Youworks.Text
 {
@@ -149,7 +148,7 @@ namespace Youworks.Text
                     return TypeResolve(value, Nullable.GetUnderlyingType(type), lineNo, columnName);
             }
 
-            throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
+            throw new InvalidValueException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
 
         internal void SetValue(object obj, object value, int lineNo)
@@ -181,7 +180,7 @@ namespace Youworks.Text
                 {
                     result = TypeResolve(value, ColumnType, lineNo, info.Name);
                 }
-                catch (FormatException)
+                catch (InvalidValueException)
                 {
                     if (csvHeaderAttribute.InvalidAction == CSVValueInvalidAction.DefaultValue)
                     {
@@ -624,7 +623,7 @@ namespace Youworks.Text
                 }
                 return default(T);
             }
-            catch (FormatException fmtex)
+            catch (InvalidValueException fmtex)
             {
                 Type type = columns[colNo].ColumnType;
                 string typeName = type.Name;
@@ -633,7 +632,14 @@ namespace Youworks.Text
                     type = Nullable.GetUnderlyingType(type);
                     typeName = String.Format("Nullable<{0}>", type.Name);
                 }
-                throw new InvalidOperationException(String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header != null ? header[colNo] : (colNo+1).ToString(), typeName, data != null ? data[colNo] : "--"), fmtex);
+                throw new InvalidValueException(
+                    String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]",
+                                  lineNo, colNo + 1,
+                                  header != null ? header[colNo] : (colNo + 1).ToString(CultureInfo.InvariantCulture),
+                                  typeName,
+                                  data != null ? data[colNo] : "--"),
+                    fmtex,
+                    lineNo, colNo + 1);
             }
         }
 
