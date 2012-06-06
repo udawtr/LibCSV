@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.IO;
 using System.Reflection;
-using System.Linq;
 
 namespace Youworks.Text
 {
@@ -72,7 +71,12 @@ namespace Youworks.Text
 
     public enum CSVValueInvalidAction
     {
-        DefaultValue, ThrowException
+        DefaultValue, 
+        
+        /// <summary>
+        /// <c>CSVValueInvalidException</c>をthrowします
+        /// </summary>
+        ThrowException
     }
 
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
@@ -99,7 +103,9 @@ namespace Youworks.Text
     {
         private FieldInfo Field;
         private PropertyInfo Property;
-        internal static ICSVTypeResolver TypeResolver = new CSVGeneralTypeResolver();
+
+        internal ICSVTypeResolver TypeResolver { get; set; }
+
         internal CSVColumn(FieldInfo field)
         {
             this.Field = field;
@@ -149,7 +155,7 @@ namespace Youworks.Text
                     return TypeResolve(value, Nullable.GetUnderlyingType(type), lineNo, columnName);
             }
 
-            throw new FormatException(String.Format("{0}型を解決できませんでした。", type.Name));
+            throw new CSVValueInvalidException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
 
         internal void SetValue(object obj, object value, int lineNo)
@@ -181,7 +187,7 @@ namespace Youworks.Text
                 {
                     result = TypeResolve(value, ColumnType, lineNo, info.Name);
                 }
-                catch (FormatException)
+                catch (CSVValueInvalidException)
                 {
                     if (csvHeaderAttribute.InvalidAction == CSVValueInvalidAction.DefaultValue)
                     {
@@ -206,9 +212,23 @@ namespace Youworks.Text
     public sealed class CSVSource<T> : ICSVSource, IEnumerable<T>, IDisposable where T : new()
     {
         private string filename;
+
+        private ICSVTypeResolver typeResolver;
+
         public ICSVTypeResolver TypeResolver
         {
-            set { CSVColumn.TypeResolver = value; }
+            set
+            {
+                typeResolver = value;
+                if (columns != null)
+                {
+                    foreach (var column in columns)
+                    {
+                        if (column != null) column.TypeResolver = typeResolver;
+                    }
+                }
+            }
+            get { return typeResolver; }
         }
 
         /// <summary>
@@ -279,6 +299,8 @@ namespace Youworks.Text
         {
             SkipHeaders();
 
+            typeResolver = new CSVGeneralTypeResolver();
+
             //ヘッダを読み取る
             if (HasHeader)
             {
@@ -331,7 +353,10 @@ namespace Youworks.Text
                 var attrs = (CSVHeaderAttribute[])field.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
                 if ( attrs.Length > 0 && attrs[0].HasIndex )
                 {
-                    dict[attrs[0].Index] = new CSVColumn(field);
+                    dict[attrs[0].Index] = new CSVColumn(field)
+                    {
+                        TypeResolver = this.typeResolver
+                    };
                     if (maxIndex < attrs[0].Index)
                     {
                         maxIndex = attrs[0].Index;
@@ -345,7 +370,10 @@ namespace Youworks.Text
                 var attrs = (CSVHeaderAttribute[])property.GetCustomAttributes(typeof(CSVHeaderAttribute), true);
                 if ( attrs.Length > 0 && attrs[0].HasIndex )
                 {
-                    dict[attrs[0].Index] = new CSVColumn(property);
+                    dict[attrs[0].Index] = new CSVColumn(property)
+                    {
+                        TypeResolver = this.typeResolver
+                    };
                     if (maxIndex < attrs[0].Index)
                     {
                         maxIndex = attrs[0].Index;
@@ -425,6 +453,11 @@ namespace Youworks.Text
                         columns[i] = new CSVColumn(property);
                     }
                 }
+            }
+
+            foreach (var column in columns)
+            {
+                if (column != null) column.TypeResolver = typeResolver;
             }
         }
 
@@ -624,7 +657,7 @@ namespace Youworks.Text
                 }
                 return default(T);
             }
-            catch (FormatException fmtex)
+            catch (CSVValueInvalidException fmtex)
             {
                 Type type = columns[colNo].ColumnType;
                 string typeName = type.Name;
@@ -633,7 +666,14 @@ namespace Youworks.Text
                     type = Nullable.GetUnderlyingType(type);
                     typeName = String.Format("Nullable<{0}>", type.Name);
                 }
-                throw new InvalidOperationException(String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]", lineNo, colNo+1, header != null ? header[colNo] : (colNo+1).ToString(), typeName, data != null ? data[colNo] : "--"), fmtex);
+                throw new CSVValueInvalidException(
+                    String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]",
+                                  lineNo, colNo + 1,
+                                  header != null ? header[colNo] : (colNo + 1).ToString(CultureInfo.InvariantCulture),
+                                  typeName,
+                                  data != null ? data[colNo] : "--"),
+                    fmtex,
+                    lineNo, colNo + 1);
             }
         }
 

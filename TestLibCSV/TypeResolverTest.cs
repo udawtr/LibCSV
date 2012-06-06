@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Youworks.Text;
 
@@ -45,7 +44,7 @@ namespace TestLibCSV
                 {
                     return base.ResolveInt(args);
                 }
-                catch(FormatException)
+                catch(CSVValueInvalidException)
                 {
                     return 100;
                 }
@@ -57,7 +56,7 @@ namespace TestLibCSV
                 {
                     return base.ResolveDouble(args);
                 }
-                catch(FormatException)
+                catch(CSVValueInvalidException)
                 {
                     return 200.0D;
                 }
