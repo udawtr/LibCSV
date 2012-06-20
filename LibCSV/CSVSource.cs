@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Youworks.Text
@@ -66,6 +67,15 @@ namespace Youworks.Text
             }
         }
 
+        public bool ForbidEmptyString { get; set; }
+
+        /// <summary>
+        /// 選択式のフィールドの選択肢を指定します。
+        /// 配列を与えた場合、配列に含まれない値が入力された時に例外を出力します。
+        /// string型のフィールドで使うことを前提としています。string型以外のフィールドでは使わないでください。
+        /// </summary>
+        public string[] List { get; set; }
+
         public CSVValueInvalidAction InvalidAction { get; set; }
     }
 
@@ -91,6 +101,7 @@ namespace Youworks.Text
         /// 読み飛ばす先頭行数
         /// </summary>
         public int SkipRowCount { get; set; }
+
         public CSVFileAttribute()
             : base()
         {
@@ -177,7 +188,11 @@ namespace Youworks.Text
                 (CSVHeaderAttribute)
                 Attribute.GetCustomAttribute(info, typeof (CSVHeaderAttribute), true) ?? new CSVHeaderAttribute();
 
-            if (string.IsNullOrEmpty((string) value) && csvHeaderAttribute.HasDefaultValue)
+            if (string.IsNullOrEmpty((string)value) && csvHeaderAttribute.ForbidEmptyString)
+            {
+                throw new CSVValueEmptyException("必須項目に値が与えられませんでした。");
+            }
+            if (string.IsNullOrEmpty((string)value) && csvHeaderAttribute.HasDefaultValue)
             {
                 result = csvHeaderAttribute.DefaultValue;
             }
@@ -197,6 +212,16 @@ namespace Youworks.Text
                     {
                         throw;
                     }
+                }
+            }
+
+            if (csvHeaderAttribute.List != null)
+            {
+                if (csvHeaderAttribute.List.All(x => x != (string)result))
+                {
+                    throw new CSVValueWrongOptionException(
+                        string.Format(CultureInfo.InvariantCulture,
+                                      "選択肢にない値「{0}」 が与えられました。", (string) result));
                 }
             }
 
@@ -629,9 +654,6 @@ namespace Youworks.Text
         /// <summary>
         /// CSVLine型の各フィールドと同じ名前のヘッダー文字列にデータを読み込む
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="header"></param>
-        /// <returns></returns>
         public T ReadNext()
         {
             int colNo = 0;
@@ -657,7 +679,7 @@ namespace Youworks.Text
                 }
                 return default(T);
             }
-            catch (CSVValueInvalidException fmtex)
+            catch (CSVValueInvalidException ex)
             {
                 Type type = columns[colNo].ColumnType;
                 string typeName = type.Name;
@@ -672,7 +694,7 @@ namespace Youworks.Text
                                   header != null ? header[colNo] : (colNo + 1).ToString(CultureInfo.InvariantCulture),
                                   typeName,
                                   data != null ? data[colNo] : "--"),
-                    fmtex,
+                    ex,
                     lineNo, colNo + 1);
             }
         }

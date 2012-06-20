@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CSVValueWrongOptionException.cs" />
+    <Compile Include="CSVValueEmptyException.cs" />
     <Compile Include="CSVInvalidValueException.cs" />
     <Compile Include="CSVTypeResolver.cs" />
     <Compile Include="CSVSource.cs" />
