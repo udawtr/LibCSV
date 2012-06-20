@@ -147,6 +147,8 @@ namespace TestLibCSV
             catch(CSVValueInvalidException ex)
             {
                 Assert.AreEqual(CSVValueErrorType.List, ex.Error);
+                Assert.AreEqual(3, ex.RowNumber);
+                Assert.AreEqual(1, ex.ColumnNumber);
             }
         }
 
@@ -175,6 +177,8 @@ namespace TestLibCSV
             catch (CSVValueInvalidException ex)
             {
                 Assert.AreEqual(CSVValueErrorType.Required, ex.Error);
+                Assert.AreEqual(2, ex.RowNumber);
+                Assert.AreEqual(1, ex.ColumnNumber);
             }
         }
 
