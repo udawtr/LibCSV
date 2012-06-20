@@ -705,7 +705,7 @@ namespace Youworks.Text
                                                        ex,
                                                        lineNo, colNo + 1);
                 }
-                throw;
+                throw new CSVValueInvalidException(ex.Error, ex.Message, lineNo, colNo + 1);
             }
         }
 
