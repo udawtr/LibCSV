@@ -126,5 +126,64 @@ namespace TestLibCSV
             [CSVHeader(Index = 3, DefaultValue = 200, InvalidAction = CSVValueInvalidAction.DefaultValue)]
             public int Int4 { get; set; }
         }
+
+        [TestMethod]
+        public void ListTest()
+        {
+            const string text = "item1\r\nitem2\r\nitem3";
+            var target = CreateCSVSourceFromText<ListTestRow>(text);
+
+            var line = target.ReadNext();
+            Assert.AreEqual("item1", line.Col1);
+
+            line = target.ReadNext();
+            Assert.AreEqual("item2", line.Col1);
+
+            try
+            {
+                target.ReadNext();
+                Assert.Fail();
+            }
+            catch(CSVValueWrongOptionException)
+            {
+            }
+        }
+
+        [CSVFile(HasHeader = false, SkipRowCount = 0)]
+        private class ListTestRow
+        {
+            [CSVHeader(Index = 0, List = new[] {"item1", "item2"})]
+            public string Col1;
+        }
+
+        [TestMethod]
+        public void ForbidEmptyStringTest()
+        {
+            const string text = "aaa,bbb\r\n,ccc";
+            var target = CreateCSVSourceFromText<ForbidEmptyStringTestRow>(text);
+
+            var line = target.ReadNext();
+            Assert.AreEqual("aaa", line.Col1);
+            Assert.AreEqual("bbb", line.Col2);
+
+            try
+            {
+                target.ReadNext();
+                Assert.Fail();
+            }
+            catch (CSVValueEmptyException)
+            {
+            }
+        }
+
+        [CSVFile(HasHeader = false, SkipRowCount = 0)]
+        private class ForbidEmptyStringTestRow
+        {
+            [CSVHeader(Index = 0, ForbidEmptyString = true)]
+            public string Col1;
+
+            [CSVHeader(Index = 1)]
+            public string Col2;
+        }
     }
 }
