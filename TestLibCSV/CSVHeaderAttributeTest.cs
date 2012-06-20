@@ -158,10 +158,10 @@ namespace TestLibCSV
         }
 
         [TestMethod]
-        public void ForbidEmptyStringTest()
+        public void RequiredColumnTest()
         {
             const string text = "aaa,bbb\r\n,ccc";
-            var target = CreateCSVSourceFromText<ForbidEmptyStringTestRow>(text);
+            var target = CreateCSVSourceFromText<RequiredColumnTestRow>(text);
 
             var line = target.ReadNext();
             Assert.AreEqual("aaa", line.Col1);
@@ -179,7 +179,7 @@ namespace TestLibCSV
         }
 
         [CSVFile(HasHeader = false, SkipRowCount = 0)]
-        private class ForbidEmptyStringTestRow
+        private class RequiredColumnTestRow
         {
             [CSVHeader(Index = 0, Requied = true)]
             public string Col1;

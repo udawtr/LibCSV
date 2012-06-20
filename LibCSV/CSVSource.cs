@@ -684,21 +684,28 @@ namespace Youworks.Text
             }
             catch (CSVValueInvalidException ex)
             {
-                Type type = columns[colNo].ColumnType;
-                string typeName = type.Name;
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+                if (ex.Error == CSVValueErrorType.Parsing)
                 {
-                    type = Nullable.GetUnderlyingType(type);
-                    typeName = String.Format("Nullable<{0}>", type.Name);
+                    Type type = columns[colNo].ColumnType;
+                    string typeName = type.Name;
+                    if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof (Nullable<>))
+                    {
+                        type = Nullable.GetUnderlyingType(type);
+                        typeName = String.Format("Nullable<{0}>", type.Name);
+                    }
+                    throw new CSVValueInvalidException(CSVValueErrorType.Parsing,
+                                                       String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]",
+                                                                     lineNo, colNo + 1,
+                                                                     header != null
+                                                                         ? header[colNo]
+                                                                         : (colNo + 1).ToString(
+                                                                             CultureInfo.InvariantCulture),
+                                                                     typeName,
+                                                                     data != null ? data[colNo] : "--"),
+                                                       ex,
+                                                       lineNo, colNo + 1);
                 }
-                throw new CSVValueInvalidException(CSVValueErrorType.Parsing,
-                    String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]",
-                                  lineNo, colNo + 1,
-                                  header != null ? header[colNo] : (colNo + 1).ToString(CultureInfo.InvariantCulture),
-                                  typeName,
-                                  data != null ? data[colNo] : "--"),
-                    ex,
-                    lineNo, colNo + 1);
+                throw;
             }
         }
 
