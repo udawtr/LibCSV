@@ -67,7 +67,10 @@ namespace Youworks.Text
             }
         }
 
-        public bool ForbidEmptyString { get; set; }
+        /// <summary>
+        /// この項目が必須であることを指定します。
+        /// </summary>
+        public bool Requied { get; set; }
 
         /// <summary>
         /// 選択式のフィールドの選択肢を指定します。
@@ -166,7 +169,7 @@ namespace Youworks.Text
                     return TypeResolve(value, Nullable.GetUnderlyingType(type), lineNo, columnName);
             }
 
-            throw new CSVValueInvalidException(String.Format("{0}型を解決できませんでした。", type.Name));
+            throw new NotSupportedException(String.Format("{0}型を解決できませんでした。", type.Name));
         }
 
         internal void SetValue(object obj, object value, int lineNo)
@@ -188,9 +191,9 @@ namespace Youworks.Text
                 (CSVHeaderAttribute)
                 Attribute.GetCustomAttribute(info, typeof (CSVHeaderAttribute), true) ?? new CSVHeaderAttribute();
 
-            if (string.IsNullOrEmpty((string)value) && csvHeaderAttribute.ForbidEmptyString)
+            if (string.IsNullOrEmpty((string)value) && csvHeaderAttribute.Requied)
             {
-                throw new CSVValueEmptyException("必須項目に値が与えられませんでした。");
+                throw new CSVValueInvalidException(CSVValueErrorType.Required, "必須項目に値が与えられませんでした。");
             }
             if (string.IsNullOrEmpty((string)value) && csvHeaderAttribute.HasDefaultValue)
             {
@@ -219,7 +222,7 @@ namespace Youworks.Text
             {
                 if (csvHeaderAttribute.List.All(x => x != (string)result))
                 {
-                    throw new CSVValueWrongOptionException(
+                    throw new CSVValueInvalidException(CSVValueErrorType.List,
                         string.Format(CultureInfo.InvariantCulture,
                                       "選択肢にない値「{0}」 が与えられました。", (string) result));
                 }
@@ -688,7 +691,7 @@ namespace Youworks.Text
                     type = Nullable.GetUnderlyingType(type);
                     typeName = String.Format("Nullable<{0}>", type.Name);
                 }
-                throw new CSVValueInvalidException(
+                throw new CSVValueInvalidException(CSVValueErrorType.Parsing,
                     String.Format("カラム'{2}'(\"{4}\")を{3}型に変換できません。[{0}行{1}列]",
                                   lineNo, colNo + 1,
                                   header != null ? header[colNo] : (colNo + 1).ToString(CultureInfo.InvariantCulture),

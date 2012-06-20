@@ -34,7 +34,7 @@ namespace Youworks.Text
             }
             catch (FormatException e)
             {
-                throw new CSVValueInvalidException(e.Message, e);
+                throw new CSVValueInvalidException(CSVValueErrorType.Parsing, e.Message, e);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Youworks.Text
             }
             catch (FormatException e)
             {
-                throw new CSVValueInvalidException(e.Message, e);
+                throw new CSVValueInvalidException(CSVValueErrorType.Parsing, e.Message, e);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Youworks.Text
             }
             catch (FormatException e)
             {
-                throw new CSVValueInvalidException(e.Message, e);
+                throw new CSVValueInvalidException(CSVValueErrorType.Parsing, e.Message, e);
             }
         }
 

@@ -144,8 +144,9 @@ namespace TestLibCSV
                 target.ReadNext();
                 Assert.Fail();
             }
-            catch(CSVValueWrongOptionException)
+            catch(CSVValueInvalidException ex)
             {
+                Assert.AreEqual(CSVValueErrorType.List, ex.Error);
             }
         }
 
@@ -171,15 +172,16 @@ namespace TestLibCSV
                 target.ReadNext();
                 Assert.Fail();
             }
-            catch (CSVValueEmptyException)
+            catch (CSVValueInvalidException ex)
             {
+                Assert.AreEqual(CSVValueErrorType.Required, ex.Error);
             }
         }
 
         [CSVFile(HasHeader = false, SkipRowCount = 0)]
         private class ForbidEmptyStringTestRow
         {
-            [CSVHeader(Index = 0, ForbidEmptyString = true)]
+            [CSVHeader(Index = 0, Requied = true)]
             public string Col1;
 
             [CSVHeader(Index = 1)]
