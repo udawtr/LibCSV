@@ -272,11 +272,11 @@ namespace Youworks.Text
         {
             get
             {
-                return sr!=null && !sr.EndOfStream;
+                return sr!=null && !sr.HasMore;
             }
         }
 
-        private StreamReader sr;
+        private CSVTextReader sr;
 
         private string[] header;
         private CSVColumn[] columns;
@@ -304,7 +304,7 @@ namespace Youworks.Text
         public CSVSource(string filename, Encoding encoding)
         {
             //ファイルを開く
-            sr = new StreamReader(filename, encoding);
+            sr = new CSVTextReader(filename, encoding);
             this.filename = filename;
 
             Init();
@@ -318,7 +318,7 @@ namespace Youworks.Text
         public CSVSource(Stream inputStream, Encoding encoding)
         {
             //ファイルを開く
-            sr = new StreamReader(inputStream, encoding);
+            sr = new CSVTextReader(inputStream, encoding);
 
             Init();
         }
@@ -517,90 +517,9 @@ namespace Youworks.Text
         /// <returns></returns>
         private string[] GetCSVLine()
         {
-            System.Collections.Specialized.StringCollection values = new System.Collections.Specialized.StringCollection();
-            StringBuilder sb = new StringBuilder(sr.ReadLine());
-            StringBuilder tmp = new StringBuilder();
-            bool inDoubleQuote = false;
-            bool escape = false;
+            var line = sr.GetNextLine();
             lineNo++;
-            for (int off = 0; off < sb.Length || inDoubleQuote; off++)
-            {
-                if (!(off < sb.Length) && inDoubleQuote)
-                {
-                    sb.Append('\n');
-                    sb.Append(sr.ReadLine());
-                }
-                char c = sb[off];
-                if (inDoubleQuote)
-                {
-                    if (escape)
-                    {
-                        if (c == '\"')
-                        {
-                            //エスケープ成立
-                            tmp.Append(c);
-                        }
-                        else
-                        {
-                            //エスケープ不成立
-                            tmp.Append('\\');
-                            tmp.Append(c);
-                        }
-                        //エスケープ処理の終了
-                        escape = false;
-                    }
-                    else
-                    {
-                        if (c == '\"')
-                        {
-                            //""(2連続するダブルクオート)の場合は例外
-                            if (off + 1 < sb.Length && sb[off + 1] == '\"')
-                            {
-                                tmp.Append("\"\"");
-                                off++;
-                            }
-                            else
-                            {
-                                //二重引用符の終了
-                                inDoubleQuote = false;
-                            }
-                        }
-                        else if (c == '\\')
-                        {
-                            //エスケープ開始
-                            escape = true;
-                        }
-                        else
-                        {
-                            //一時バッファに文字追加
-                            tmp.Append(c);
-                        }
-                    }
-                }
-                else
-                {
-                    if (c == '\"')
-                    {
-                        //二重引用符の開始
-                        inDoubleQuote = true;
-                        tmp.Length = 0;
-                    }
-                    else if (c == ',')
-                    {
-                        values.Add(tmp.ToString());
-                        tmp.Length = 0;
-                    }
-                    else
-                    {
-                        tmp.Append(c);
-                    }
-                }
-            }
-            values.Add(tmp.ToString());
-
-            string[] lines = new string[values.Count];
-            values.CopyTo(lines, 0);
-            return lines;
+            return line;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
@@ -664,7 +583,7 @@ namespace Youworks.Text
             
             try
             {
-                if (!sr.EndOfStream)
+                if (!sr.HasMore)
                 {
                     data = GetCSVLine();
                     T csvLine = new T();
