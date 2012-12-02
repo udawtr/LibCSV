@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>LibCSV</id>
-    <version>1.0</version>
+    <version>1.1.1</version>
     <title>LibCSV</title>
     <authors>Wataru Uda</authors>
     <owners>Wataru Uda</owners>
     <projectUrl>https://github.com/udawtr/LibCSV</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Reading and writing CSV formatted files.</description>
-    <releaseNotes>First release</releaseNotes>
+    <releaseNotes>Fix CSVTextReader.HasMore</releaseNotes>
     <copyright>Copyright 2012</copyright>
     <tags>CSV</tags>
   </metadata>

@@ -53,7 +53,7 @@ namespace Youworks.Text
         {
             get
             {
-                return baseReader.EndOfStream;
+                return !baseReader.EndOfStream;
             }
         }
 

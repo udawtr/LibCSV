@@ -272,7 +272,7 @@ namespace Youworks.Text
         {
             get
             {
-                return sr!=null && !sr.HasMore;
+                return sr!=null && sr.HasMore;
             }
         }
 
@@ -583,7 +583,7 @@ namespace Youworks.Text
             
             try
             {
-                if (!sr.HasMore)
+                if (sr.HasMore)
                 {
                     data = GetCSVLine();
                     T csvLine = new T();
