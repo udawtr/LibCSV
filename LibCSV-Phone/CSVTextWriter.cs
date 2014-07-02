@@ -14,12 +14,10 @@ namespace Youworks.Text
             baseWriter = streamWriter;
         }
 
-#if !WINDOWS_PHONE
         public CSVTextWriter(string fileName)
         {
             baseWriter = new System.IO.StreamWriter(fileName, false, System.Text.Encoding.GetEncoding(932));
         }
-#endif
 
         public void Write(string text)
         {

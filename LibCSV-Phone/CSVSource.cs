@@ -296,12 +296,10 @@ namespace Youworks.Text
             get { return header; }
         }
 
-#if !WINDOWS_PHONE
         public CSVSource(string filename)
             : this(filename, Encoding.GetEncoding(932))
         {
         }
-#endif
 
         public CSVSource(string filename, Encoding encoding)
         {
@@ -312,12 +310,10 @@ namespace Youworks.Text
             Init();
         }
 
-#if !WINDOWS_PHONE
         public CSVSource(Stream inputStream)
             : this(inputStream, Encoding.GetEncoding(932))
         {
         }
-#endif
 
         public CSVSource(Stream inputStream, Encoding encoding)
         {
@@ -526,13 +522,11 @@ namespace Youworks.Text
             return line;
         }
 
-#if !WINDOWS_PHONE
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
         public static IList<T> ToList(string filename)
         {
             return ToList(filename, Encoding.GetEncoding(932));
         }
-#endif
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
         public static IList<T> ToList(string filename, Encoding encoding)
@@ -543,13 +537,11 @@ namespace Youworks.Text
             }
         }
 
-#if !WINDOWS_PHONE
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
         public static IList<T> ToList(Stream stream)
         {
             return ToList(stream, Encoding.GetEncoding(932));
         }
-#endif
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
         public static IList<T> ToList(Stream stream, Encoding encoding)
