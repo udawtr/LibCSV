@@ -13,11 +13,12 @@ namespace Youworks.Text
         {
             baseReader = streamReader;
         }
-
+#if !WINDOWS_PHONE
         public CSVTextReader(string fileName)
             : this(fileName, System.Text.Encoding.GetEncoding(932))
         {
         }
+#endif
 
         public CSVTextReader(string fileName, System.Text.Encoding enc)
             : this(new System.IO.StreamReader(fileName, enc))
@@ -62,7 +63,7 @@ namespace Youworks.Text
         /// </summary>
         public string[] GetNextLine()
         {
-            System.Collections.Specialized.StringCollection values = new System.Collections.Specialized.StringCollection();
+            List<string> values = new List<string>();
             StringBuilder sb = new StringBuilder(baseReader.ReadLine());
             StringBuilder tmp = new StringBuilder();
             bool inDoubleQuote = false;

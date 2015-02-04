@@ -24,7 +24,9 @@ namespace Youworks.Text
         List
     }
 
+#if !WINDOWS_PHONE
     [Serializable]
+#endif
     public class CSVValueInvalidException : Exception
     {
         public readonly CSVValueErrorType Error;
@@ -47,12 +49,13 @@ namespace Youworks.Text
             Error = error;
         }
 
+#if !WINDOWS_PHONE
         protected CSVValueInvalidException(
             SerializationInfo info,
             StreamingContext context) : base(info, context)
         {
         }
-
+#endif
         public CSVValueInvalidException(CSVValueErrorType error, string message, int rowNumber, int columnNumber)
             : base(message)
         {
