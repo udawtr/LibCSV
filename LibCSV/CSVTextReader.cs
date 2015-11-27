@@ -29,6 +29,18 @@ namespace Youworks.Text
         {
         }
 
+        public static IEnumerable<string[]> ReadAll(string fileName, System.Text.Encoding enc, int skipLines = 1)
+        {
+            using (var reader = new CSVTextReader(fileName, enc))
+            {
+                reader.SkipLines(skipLines);
+                while (reader.HasMore)
+                {
+                    yield return reader.GetNextLine();
+                }
+                reader.Close();
+            }
+        }
 
         private int lineNo = 0;
 
