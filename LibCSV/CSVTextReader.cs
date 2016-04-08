@@ -113,7 +113,7 @@ namespace Youworks.Text
                             //""(2連続するダブルクオート)の場合は例外
                             if (off + 1 < sb.Length && sb[off + 1] == '\"')
                             {
-                                tmp.Append("\"\"");
+                                tmp.Append("\"");
                                 off++;
                             }
                             else

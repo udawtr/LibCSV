@@ -58,5 +58,18 @@ namespace TestLibCSV
             Assert.AreEqual("2010/1/3", line[3]);
             Assert.AreEqual(2, target.LineNo);
         }
+
+        [TestMethod()]
+        [DeploymentItem("LibCSV.dll")]
+        public void DoubleQuotationTest()
+        {
+            const string text = "01234,\"AB\"\"CD\",\"EFG\"";
+            var target = CreateCSVTextReaderFromText(text);
+
+            var line = target.GetNextLine();
+            Assert.AreEqual("01234", line[0]);
+            Assert.AreEqual("AB\"CD", line[1]);
+            Assert.AreEqual("EFG", line[2]);
+        }
     }
 }
