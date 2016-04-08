@@ -531,7 +531,7 @@ namespace Youworks.Text
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1000")]
         public static IList<T> ToList(string filename, Encoding encoding)
         {
-            using(var stream =new FileStream(filename, FileMode.Open))
+            using(var stream =new FileStream(filename, FileMode.Open, FileAccess.Read))
             {
                 return ToList(stream, encoding);
             }
