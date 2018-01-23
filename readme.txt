@@ -1,6 +1,6 @@
 LibCSV
 
-CSVファイルの読み込みを行うC#ライブラリ
+CSVファイルの読み込みを行うC#ライブラリ(.NET Standard版)
 
 public class ZipCodeCSV
 {

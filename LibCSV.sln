@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibCSV", "LibCSV\LibCSV.csproj", "{04925C94-538B-4B2D-B057-51E94BC29A01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibCSV", "LibCSV\LibCSV.csproj", "{04925C94-538B-4B2D-B057-51E94BC29A01}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLibCSV", "TestLibCSV\TestLibCSV.csproj", "{369E7E57-BA4F-4DBE-B1C7-8C4261F259F4}"
 EndProject
@@ -31,6 +31,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {79D6CF16-6F3F-41BD-A2A1-726C4AA976F3}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = LibCSV.vsmdi
