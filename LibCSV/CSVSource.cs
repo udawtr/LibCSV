@@ -296,6 +296,12 @@ namespace Youworks.Text
             get { return header; }
         }
 
+        static CSVSource()
+        {
+            var provider = System.Text.CodePagesEncodingProvider.Instance;
+            System.Text.Encoding.RegisterProvider(provider);
+        }
+
         public CSVSource(string filename)
             : this(filename, Encoding.GetEncoding(932))
         {

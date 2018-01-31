@@ -9,6 +9,12 @@ namespace Youworks.Text
     {
         private System.IO.StreamWriter baseWriter;
 
+        private CSVTextWriter()
+        {
+            var provider = System.Text.CodePagesEncodingProvider.Instance;
+            System.Text.Encoding.RegisterProvider(provider);
+        }
+
         public CSVTextWriter(System.IO.StreamWriter streamWriter)
         {
             baseWriter = streamWriter;

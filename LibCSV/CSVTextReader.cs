@@ -9,6 +9,12 @@ namespace Youworks.Text
     {
         private System.IO.StreamReader baseReader;
 
+        static CSVTextReader()
+        {
+            var provider = System.Text.CodePagesEncodingProvider.Instance;
+            System.Text.Encoding.RegisterProvider(provider);
+        }
+
         public CSVTextReader(System.IO.StreamReader streamReader)
         {
             baseReader = streamReader;

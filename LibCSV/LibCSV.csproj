@@ -2,6 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.1.5</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>LibCSV.NETStandard</PackageId>
+    <Authors>Wataru Uda</Authors>
+    <Company>Wataru Uda</Company>
+    <Product>LibCSV.NetStandard</Product>
+    <Description>Reading and writing CSV formatted files.</Description>
+    <Copyright>Copyright 2018</Copyright>
+    <PackageProjectUrl>https://github.com/udawtr/LibCSV.NETStandard</PackageProjectUrl>
+    <PackageTags>CSV</PackageTags>
+    <PackageReleaseNotes>* Support for Codepages</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+  </ItemGroup>
 
 </Project>
